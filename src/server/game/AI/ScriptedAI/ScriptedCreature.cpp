@@ -45,7 +45,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
     }
 }
 
-void SummonList::DoAction(uint32 entry, uint32 info)
+void SummonList::DoAction(uint32 entry, int32 info)
 {
     for (iterator i = begin(); i != end();)
     {
@@ -94,6 +94,33 @@ void SummonList::DespawnAll()
                 summon->DisappearAndDie();
         }
     }
+}
+
+void SummonList::RemoveNotExisting()
+{
+    for (iterator i = begin(); i != end();)
+    {
+        if (Unit::GetCreature(*me, *i))
+            ++i;
+        else
+            erase(i++);
+    }
+}
+
+bool SummonList::HasEntry(uint32 entry)
+{
+    for (iterator i = begin(); i != end();)
+    {
+        Creature* summon = Unit::GetCreature(*me, *i);
+        if (!summon)
+            erase(i++);
+        else if (summon->GetEntry() == entry)
+            return true;
+        else
+            ++i;
+    }
+
+    return false;
 }
 
 ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
@@ -168,7 +195,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* pSource, uint32 uiSoundId)
 
     if (!GetSoundEntriesStore()->LookupEntry(uiSoundId))
     {
-        sLog.outError("TSCR: Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", uiSoundId, pSource->GetTypeId(), pSource->GetGUIDLow());
+        sLog->outError("TSCR: Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", uiSoundId, pSource->GetTypeId(), pSource->GetGUIDLow());
         return;
     }
 
@@ -178,38 +205,6 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* pSource, uint32 uiSoundId)
 Creature* ScriptedAI::DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime)
 {
     return me->SummonCreature(uiId, me->GetPositionX()+fX, me->GetPositionY()+fY, me->GetPositionZ()+fZ, fAngle, (TempSummonType)uiType, uiDespawntime);
-}
-
-Unit* ScriptedAI::SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition)
-{
-    //ThreatList m_threatlist;
-    std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-    std::list<HostileReference*>::iterator itr = threatlist.begin();
-    std::list<HostileReference*>::reverse_iterator ritr = threatlist.rbegin();
-
-    if (uiPosition >= threatlist.size() || !threatlist.size())
-        return NULL;
-
-    switch (pTarget)
-    {
-    case SELECT_TARGET_RANDOM:
-        advance (itr , uiPosition +  (rand() % (threatlist.size() - uiPosition)));
-        return Unit::GetUnit((*me),(*itr)->getUnitGuid());
-        break;
-
-    case SELECT_TARGET_TOPAGGRO:
-        advance (itr , uiPosition);
-        return Unit::GetUnit((*me),(*itr)->getUnitGuid());
-        break;
-
-    case SELECT_TARGET_BOTTOMAGGRO:
-        advance (ritr , uiPosition);
-        return Unit::GetUnit((*me),(*ritr)->getUnitGuid());
-        break;
-
-    default:
-        return UnitAI::SelectTarget(pTarget, uiPosition);
-    }
 }
 
 SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, uint32 uiSchool, uint32 uiMechanic, SelectTargetType selectTargets, uint32 uiPowerCostMin, uint32 uiPowerCostMax, float fRangeMin, float fRangeMax, SelectEffect selectEffects)
@@ -328,7 +323,7 @@ void ScriptedAI::DoResetThreat()
 {
     if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
     {
-        sLog.outError("TSCR: DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
+        sLog->outError("TSCR: DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
         return;
     }
 
@@ -371,7 +366,7 @@ void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float fX, float fY, float fZ, flo
     if (!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)
     {
         if (pUnit)
-            sLog.outError("TSCR: Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.", me->GetGUID(), me->GetEntry(), pUnit->GetTypeId(), pUnit->GetGUID(), fX, fY, fZ, fO);
+            sLog->outError("TSCR: Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.", me->GetGUID(), me->GetEntry(), pUnit->GetTypeId(), pUnit->GetGUID(), fX, fY, fZ, fO);
         return;
     }
 
@@ -508,7 +503,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
                 return false;
             break;
         default:
-            sLog.outError("TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", me->GetEntry());
+            sLog->outError("TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", me->GetEntry());
             return false;
     }
 
@@ -538,6 +533,7 @@ void BossAI::_Reset()
     if (!me->isAlive())
         return;
 
+    me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
     if (instance)
@@ -560,7 +556,15 @@ void BossAI::_EnterCombat()
     me->setActive(true);
     DoZoneInCombat();
     if (instance)
+    {
+        // bosses do not respawn, check only on enter combat
+        if (!instance->CheckRequiredBosses(bossId))
+        {
+            EnterEvadeMode();
+            return;
+        }
         instance->SetBossState(bossId, IN_PROGRESS);
+    }
 }
 
 void BossAI::TeleportCheaters()

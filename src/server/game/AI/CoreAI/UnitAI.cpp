@@ -42,7 +42,7 @@ void UnitAI::AttackStartCaster(Unit *victim, float dist)
 
 void UnitAI::DoMeleeAttackIfReady()
 {
-    if (me->hasUnitState(UNIT_STAT_CASTING))
+    if (me->HasUnitState(UNIT_STAT_CASTING))
         return;
 
     //Make sure our attack is ready and we aren't currently casting before checking distance
@@ -68,7 +68,7 @@ void UnitAI::DoMeleeAttackIfReady()
 
 bool UnitAI::DoSpellAttackIfReady(uint32 spell)
 {
-    if (me->hasUnitState(UNIT_STAT_CASTING))
+    if (me->HasUnitState(UNIT_STAT_CASTING))
         return true;
 
     if (me->isAttackReady())
@@ -91,35 +91,7 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
 
 void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
 {
-    const std::list<HostileReference*> &threatlist = me->getThreatManager().getThreatList();
-
-    if (threatlist.empty())
-        return;
-
-    DefaultTargetSelector targetSelector(me, dist,playerOnly, aura);
-    for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-        if (targetSelector((*itr)->getTarget()))
-            targetList.push_back((*itr)->getTarget());
-
-    if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-        targetList.sort(Trinity::ObjectDistanceOrderPred(me));
-
-    if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
-        targetList.reverse();
-
-    if (targetList.size() < num)
-        return;
-
-    if (targetType == SELECT_TARGET_RANDOM)
-    {
-        while (num < targetList.size()) {
-            std::list<Unit*>::iterator itr = targetList.begin();
-            advance(itr, urand(0, targetList.size()-1));
-            targetList.erase(itr);
-        }
-    }
-    else
-        targetList.resize(num);
+    SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
 }
 
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
@@ -160,7 +132,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
 void UnitAI::DoCast(uint32 spellId)
 {
     Unit *target = NULL;
-    //sLog.outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
+    //sLog->outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
     switch(AISpellInfo[spellId].target)
     {
         default:
@@ -169,7 +141,7 @@ void UnitAI::DoCast(uint32 spellId)
         case AITARGET_ENEMY:
         {
             const SpellEntry * spellInfo = GetSpellStore()->LookupEntry(spellId);
-            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY;
+            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_PLAYERS_ONLY;
             //float range = GetSpellMaxRange(spellInfo, false);
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, GetSpellMaxRange(spellInfo, false), playerOnly);
             break;
@@ -179,11 +151,11 @@ void UnitAI::DoCast(uint32 spellId)
         case AITARGET_DEBUFF:
         {
             const SpellEntry * spellInfo = GetSpellStore()->LookupEntry(spellId);
-            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY;
+            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_PLAYERS_ONLY;
             float range = GetSpellMaxRange(spellInfo, false);
 
             DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
-            if (!(spellInfo->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+            if (!(spellInfo->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE)
                 && !(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
                 && targetSelector(me->getVictim()))
                 target = me->getVictim();
@@ -212,7 +184,7 @@ void UnitAI::FillAISpellInfo()
         if (!spellInfo)
             continue;
 
-        if (spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD)
+        if (spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD)
             AIInfo->condition = AICOND_DIE;
         else if (IsPassiveSpell(i) || GetSpellDuration(spellInfo) == -1)
             AIInfo->condition = AICOND_AGGRO;

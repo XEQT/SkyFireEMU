@@ -31,6 +31,7 @@
 #include "Creature.h"
 #include "World.h"
 #include "Util.h"
+#include "Group.h"
 
 int PetAI::Permissible(const Creature *creature)
 {
@@ -67,7 +68,7 @@ void PetAI::_stopAttack()
 {
     if (!me->isAlive())
     {
-        sLog.outStaticDebug("Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
+        sLog->outStaticDebug("Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
@@ -99,7 +100,7 @@ void PetAI::UpdateAI(const uint32 diff)
     {
         if (_needToStop())
         {
-            sLog.outStaticDebug("Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
+            sLog->outStaticDebug("Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
             _stopAttack();
             return;
         }
@@ -118,14 +119,14 @@ void PetAI::UpdateAI(const uint32 diff)
         else
             HandleReturnMovement();
     }
-    else if (owner && !me->hasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
+    else if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
         me->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, me->GetFollowAngle());
 
     if (!me->GetCharmInfo())
         return;
 
     // Autocast (casted only in combat or persistent spells in any state)
-    if (me->GetGlobalCooldown() == 0 && !me->hasUnitState(UNIT_STAT_CASTING))
+    if (!me->HasUnitState(UNIT_STAT_CASTING))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
@@ -138,6 +139,9 @@ void PetAI::UpdateAI(const uint32 diff)
 
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
             if (!spellInfo)
+                continue;
+
+            if (me->GetCharmInfo() && me->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
                 continue;
 
             // ignore some combinations of combat state and combat/noncombat spells
@@ -317,20 +321,28 @@ Unit *PetAI::SelectNextTarget()
     if (me->HasReactState(REACT_PASSIVE))
         return NULL;
 
-    Unit *target = NULL;
+    Unit *target = me->getAttackerForHelper();
     targetHasCC = false;
 
-    // Check pet's attackers first to prevent dragging mobs back
-    // to owner
-    if ((target = me->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
-    // Check owner's attackers if pet didn't have any
-    else if (me->GetCharmerOrOwner() && (target = me->GetCharmerOrOwner()->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
-    // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
-    else if (me->GetCharmerOrOwner() && (target = me->GetCharmerOrOwner()->getVictim()) && !_CheckTargetCC(target)) {}
-    // Default
-    else return NULL;
+    // Check pet's attackers first to prevent dragging mobs back to owner
+    if (target && !_CheckTargetCC(target))
+        return target;
 
-    return target;
+    if (me->GetCharmerOrOwner())
+    {
+        // Check owner's attackers if pet didn't have any
+        target = me->GetCharmerOrOwner()->getAttackerForHelper();
+        if (target && !_CheckTargetCC(target))
+            return target;
+
+        // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
+        target = me->GetCharmerOrOwner()->getVictim();
+        if (target && !_CheckTargetCC(target))
+            return target;
+    }
+
+    // Default
+    return NULL;
 }
 
 void PetAI::HandleReturnMovement()
@@ -430,7 +442,7 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
                 me->GetCharmInfo()->SetIsReturning(false);
                 me->GetCharmInfo()->SetIsFollowing(true);
                 me->GetCharmInfo()->SetIsCommandAttack(false);
-                me->addUnitState(UNIT_STAT_FOLLOW);
+                me->AddUnitState(UNIT_STAT_FOLLOW);
             }
         }
         break;
@@ -473,7 +485,7 @@ bool PetAI::_CanAttack(Unit *target)
 
 bool PetAI::_CheckTargetCC(Unit *target)
 {
-    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID()))
+    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID()))
         return true;
 
     return false;

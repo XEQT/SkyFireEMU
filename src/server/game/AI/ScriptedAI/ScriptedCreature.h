@@ -49,8 +49,10 @@ class SummonList : public std::list<uint64>
         void Despawn(Creature *summon) { remove(summon->GetGUID()); }
         void DespawnEntry(uint32 entry);
         void DespawnAll();
-        void DoAction(uint32 entry, uint32 info);
+        void DoAction(uint32 entry, int32 info);
         void DoZoneInCombat(uint32 entry = 0);
+        void RemoveNotExisting();
+        bool HasEntry(uint32 entry);
     private:
         Creature *me;
 };
@@ -60,9 +62,9 @@ struct ScriptedAI : public CreatureAI
     explicit ScriptedAI(Creature* pCreature);
     virtual ~ScriptedAI() {}
 
-    //*************
+    // *************
     //CreatureAI Functions
-    //*************
+    // *************
 
     void AttackStartNoMove(Unit *pTarget);
 
@@ -96,9 +98,9 @@ struct ScriptedAI : public CreatureAI
     // Called when AI is temporarily replaced or put back when possess is applied or removed
     void OnPossess(bool /*apply*/) {}
 
-    //*************
+    // *************
     // Variables
-    //*************
+    // *************
 
     //Pointer to creature we are manipulating
     Creature* me;
@@ -106,9 +108,9 @@ struct ScriptedAI : public CreatureAI
     //For fleeing
     bool IsFleeing;
 
-    //*************
+    // *************
     //Pure virtual functions
-    //*************
+    // *************
 
     //Called at creature reset either by death or evade
     void Reset() {}
@@ -116,9 +118,9 @@ struct ScriptedAI : public CreatureAI
     //Called at creature aggro either by MoveInLOS or Attack Start
     void EnterCombat(Unit* /*who*/) {}
 
-    //*************
+    // *************
     //AI Helper Functions
-    //*************
+    // *************
 
     //Start movement toward victim
     void DoStartMovement(Unit* pVictim, float fDistance = 0, float fAngle = 0);
@@ -164,9 +166,6 @@ struct ScriptedAI : public CreatureAI
 
     //Spawns a creature relative to me
     Creature* DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime);
-
-    //Selects a unit from the creature's current aggro list
-    Unit* SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition);
 
     bool HealthBelowPct(uint32 pct) const { return me->HealthBelowPct(pct); }
     bool HealthAbovePct(uint32 pct) const { return me->HealthAbovePct(pct); }

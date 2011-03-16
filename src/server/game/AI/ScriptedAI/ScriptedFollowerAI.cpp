@@ -29,6 +29,7 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 #include "ScriptedFollowerAI.h"
+#include "Group.h"
 
 const float MAX_PLAYER_DISTANCE = 100.0f;
 
@@ -55,8 +56,8 @@ void FollowerAI::AttackStart(Unit* pWho)
         me->SetInCombatWith(pWho);
         pWho->SetInCombatWith(me);
 
-        if (me->hasUnitState(UNIT_STAT_FOLLOW))
-            me->clearUnitState(UNIT_STAT_FOLLOW);
+        if (me->HasUnitState(UNIT_STAT_FOLLOW))
+            me->ClearUnitState(UNIT_STAT_FOLLOW);
 
         if (IsCombatMovement())
             me->GetMotionMaster()->MoveChase(pWho);
@@ -105,7 +106,7 @@ bool FollowerAI::AssistPlayerInCombat(Unit* pWho)
 
 void FollowerAI::MoveInLineOfSight(Unit* pWho)
 {
-    if (!me->hasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() && pWho->isInAccessiblePlaceFor(me))
+    if (!me->HasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() && pWho->isInAccessiblePlaceFor(me))
     {
         if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombat(pWho))
             return;
@@ -182,7 +183,7 @@ void FollowerAI::EnterEvadeMode()
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
-        sLog.outDebug("TSCR: FollowerAI left combat, returning to CombatStartPosition.");
+        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI left combat, returning to CombatStartPosition.");
 
         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
         {
@@ -208,8 +209,8 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
         {
             if (HasFollowState(STATE_FOLLOW_COMPLETE) && !HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
-                sLog.outDebug("TSCR: FollowerAI is set completed, despawns.");
-                me->ForcedDespawn();
+                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI is set completed, despawns.");
+                me->DespawnOrUnsummon();
                 return;
             }
 
@@ -219,7 +220,7 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
             {
                 if (HasFollowState(STATE_FOLLOW_RETURNING))
                 {
-                    sLog.outDebug("TSCR: FollowerAI is returning to leader.");
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI is returning to leader.");
 
                     RemoveFollowState(STATE_FOLLOW_RETURNING);
                     me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
@@ -248,8 +249,8 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
 
             if (bIsMaxRangeExceeded)
             {
-                sLog.outDebug("TSCR: FollowerAI failed because player/group was to far away or not found");
-                me->ForcedDespawn();
+                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI failed because player/group was to far away or not found");
+                me->DespawnOrUnsummon();
                 return;
             }
 
@@ -283,7 +284,7 @@ void FollowerAI::MovementInform(uint32 uiMotionType, uint32 uiPointId)
                 AddFollowState(STATE_FOLLOW_RETURNING);
         }
         else
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
     }
 }
 
@@ -291,13 +292,13 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
 {
     if (me->getVictim())
     {
-        sLog.outDebug("TSCR: FollowerAI attempt to StartFollow while in combat.");
+        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI attempt to StartFollow while in combat.");
         return;
     }
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
-        sLog.outError("TSCR: FollowerAI attempt to StartFollow while already following.");
+        sLog->outError("TSCR: FollowerAI attempt to StartFollow while already following.");
         return;
     }
 
@@ -313,7 +314,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
     {
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
-        sLog.outDebug("TSCR: FollowerAI start with WAYPOINT_MOTION_TYPE, set to MoveIdle.");
+        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI start with WAYPOINT_MOTION_TYPE, set to MoveIdle.");
     }
 
     me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
@@ -322,7 +323,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
 
     me->GetMotionMaster()->MoveFollow(pLeader, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    sLog.outDebug("TSCR: FollowerAI start follow %s (GUID " UI64FMTD ")", pLeader->GetName(), m_uiLeaderGUID);
+    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI start follow %s (GUID " UI64FMTD ")", pLeader->GetName(), m_uiLeaderGUID);
 }
 
 Player* FollowerAI::GetLeaderForFollower()
@@ -341,7 +342,7 @@ Player* FollowerAI::GetLeaderForFollower()
 
                     if (pMember && pMember->isAlive() && me->IsWithinDistInMap(pMember, MAX_PLAYER_DISTANCE))
                     {
-                        sLog.outDebug("TSCR: FollowerAI GetLeader changed and returned new leader.");
+                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI GetLeader changed and returned new leader.");
                         m_uiLeaderGUID = pMember->GetGUID();
                         return pMember;
                         break;
@@ -351,15 +352,15 @@ Player* FollowerAI::GetLeaderForFollower()
         }
     }
 
-    sLog.outDebug("TSCR: FollowerAI GetLeader can not find suitable leader.");
+    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI GetLeader can not find suitable leader.");
     return NULL;
 }
 
 void FollowerAI::SetFollowComplete(bool bWithEndEvent)
 {
-    if (me->hasUnitState(UNIT_STAT_FOLLOW))
+    if (me->HasUnitState(UNIT_STAT_FOLLOW))
     {
-        me->clearUnitState(UNIT_STAT_FOLLOW);
+        me->ClearUnitState(UNIT_STAT_FOLLOW);
 
         me->StopMoving();
         me->GetMotionMaster()->Clear();
@@ -386,9 +387,9 @@ void FollowerAI::SetFollowPaused(bool bPaused)
     {
         AddFollowState(STATE_FOLLOW_PAUSED);
 
-        if (me->hasUnitState(UNIT_STAT_FOLLOW))
+        if (me->HasUnitState(UNIT_STAT_FOLLOW))
         {
-            me->clearUnitState(UNIT_STAT_FOLLOW);
+            me->ClearUnitState(UNIT_STAT_FOLLOW);
 
             me->StopMoving();
             me->GetMotionMaster()->Clear();
