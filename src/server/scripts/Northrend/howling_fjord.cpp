@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -111,7 +111,7 @@ public:
                 case 23:
                     if (pPlayer)
                         pPlayer->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     break;
                 case 5:
                     if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
@@ -205,7 +205,7 @@ public:
             switch(i)
             {
             case 26:
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 break;
             }
         }
@@ -356,13 +356,13 @@ enum eDaegarnn
 };
 
 static float afSummon[] = {838.81f, -4678.06f, -94.182f};
-static float afCenter[] = {801.88f, -4721.87f, -96.143f}; 
+static float afCenter[] = {801.88f, -4721.87f, -96.143f};
 
 class npc_daegarn : public CreatureScript
 {
 public:
     npc_daegarn() : CreatureScript("npc_daegarn") { }
-        
+
     bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_DEFEAT_AT_RING)
@@ -373,10 +373,10 @@ public:
 
         return true;
     }
-        
+
     // TODO: make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
-    struct npc_daegarnAI : public ScriptedAI 
-    {  
+    struct npc_daegarnAI : public ScriptedAI
+    {
         npc_daegarnAI(Creature *pCreature) : ScriptedAI(pCreature) { }
 
         bool bEventInProgress;
@@ -419,12 +419,12 @@ public:
             me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
         }
 
-        void SummonedCreatureDies(Creature* pSummoned, Unit* pKiller)
+        void SummonedCreatureDies(Creature* pSummoned, Unit* /*pKiller*/)
         {
             uint32 uiEntry = 0;
 
             // will eventually reset the event if something goes wrong
-            switch(pSummoned->GetEntry())
+            switch (pSummoned->GetEntry())
             {
                 case NPC_FIRJUS:    uiEntry = NPC_JLARBORN; break;
                 case NPC_JLARBORN:  uiEntry = NPC_YOROS;    break;

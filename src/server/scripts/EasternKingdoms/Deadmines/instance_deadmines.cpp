@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,11 +25,6 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 #include "deadmines.h"
-
-enum Factions
-{
-    FACTION_HOSTILE_FOR_ALL                       = 16
-};
 
 enum Sounds
 {
@@ -87,101 +82,12 @@ class instance_deadmines : public InstanceMapScript
                 uiSmiteChestGUID = 0;
             }
 
-            void OnCreatureCreate(Creature *pCreature, bool /*bAdd*/)
-            {
-            Map::PlayerList const &players = instance->GetPlayers();
-            uint32 TeamInInstance = 0;
-
-            if (!players.isEmpty())
-            {
-                if (Player* pPlayer = players.begin()->getSource())
-                    TeamInInstance = pPlayer->GetTeam();
-            }
-            switch (pCreature->GetEntry())
-            {
-                // Alliance, you will be supported by Alliance npcs. Horde = Invisible.
-                case 46889: // Kagtha
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(42308, ALLIANCE); // Lieutenant Horatio Laine
-                    break;
-                }
-                case 46902: // Miss Mayhem
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(491, ALLIANCE); // Quartermaster Lewis <Quartermaster> 
-                    break;
-                }
-                case 46890: // Shattered Hand Assassin
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(1, ALLIANCE); // GM WAYPOINT
-                    break;
-                }                
-                case 46903: // Mayhem Reaper Prototype
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(1, ALLIANCE); // GM WAYPOINT
-                    break;
-                }
-                case 24935: // Vend-O-Tron D-Luxe
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(1, ALLIANCE); // GM WAYPOINT
-                    break;
-                }
-                case 46906: // Slinky Sharpshiv
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(1, ALLIANCE); // GM WAYPOINT
-                    break;
-                }
-                // Horde, you will be supported by Horde npcs. Alliance = Invisible.
-                case 46613: // Crime Scene Alarm-O-Bot
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(1, HORDE); // GM WAYPOINT
-                    break;
-                }
-                case 50595: // Stormwind Defender
-                {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(1, HORDE); // GM WAYPOINT
-                   break;
-               }
-               case 46614: // Stormwind Investigator
-               {
-                    if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
-                    if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(1, HORDE); // GM WAYPOINT
-                   break;
-               }
-            }
-        
-			}                                                
             virtual void Update(uint32 diff)
             {
                 if (!IronCladDoorGUID || !DefiasCannonGUID || !DoorLeverGUID)
                     return;
 
-                GameObject *pIronCladDoor = instance->GetGameObject(IronCladDoorGUID);
+                GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID);
                 if (!pIronCladDoor)
                     return;
 
@@ -220,11 +126,11 @@ class instance_deadmines : public InstanceMapScript
 
             void SummonCreatures()
             {
-                if (GameObject *pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
+                if (GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
                 {
-                    Creature *DefiasPirate1 = pIronCladDoor->SummonCreature(657,pIronCladDoor->GetPositionX() - 2,pIronCladDoor->GetPositionY()-7,pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                    Creature *DefiasPirate2 = pIronCladDoor->SummonCreature(657,pIronCladDoor->GetPositionX() + 3,pIronCladDoor->GetPositionY()-6,pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                    Creature *DefiasCompanion = pIronCladDoor->SummonCreature(3450,pIronCladDoor->GetPositionX() + 2,pIronCladDoor->GetPositionY()-6,pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    Creature* DefiasPirate1 = pIronCladDoor->SummonCreature(657,pIronCladDoor->GetPositionX() - 2,pIronCladDoor->GetPositionY()-7,pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    Creature* DefiasPirate2 = pIronCladDoor->SummonCreature(657,pIronCladDoor->GetPositionX() + 3,pIronCladDoor->GetPositionY()-6,pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    Creature* DefiasCompanion = pIronCladDoor->SummonCreature(3450,pIronCladDoor->GetPositionX() + 2,pIronCladDoor->GetPositionY()-6,pIronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
 
                     DefiasPirate1GUID = DefiasPirate1->GetGUID();
                     DefiasPirate2GUID = DefiasPirate2->GetGUID();
@@ -237,9 +143,9 @@ class instance_deadmines : public InstanceMapScript
                 if (!DefiasPirate1GUID || !DefiasPirate2GUID || !DefiasCompanionGUID)
                     return;
 
-                Creature *pDefiasPirate1 = instance->GetCreature(DefiasPirate1GUID);
-                Creature *pDefiasPirate2 = instance->GetCreature(DefiasPirate2GUID);
-                Creature *pDefiasCompanion = instance->GetCreature(DefiasCompanionGUID);
+                Creature* pDefiasPirate1 = instance->GetCreature(DefiasPirate1GUID);
+                Creature* pDefiasPirate2 = instance->GetCreature(DefiasPirate2GUID);
+                Creature* pDefiasCompanion = instance->GetCreature(DefiasCompanionGUID);
                 if (!pDefiasPirate1 || !pDefiasPirate2 || !pDefiasCompanion)
                     return;
 
@@ -248,15 +154,15 @@ class instance_deadmines : public InstanceMapScript
                 MoveCreatureInside(pDefiasCompanion);
             }
 
-            void MoveCreatureInside(Creature* pCreature)
+            void MoveCreatureInside(Creature* creature)
             {
-                pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                pCreature->GetMotionMaster()->MovePoint(0, -102.7f,-655.9f, pCreature->GetPositionZ());
+                creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                creature->GetMotionMaster()->MovePoint(0, -102.7f,-655.9f, creature->GetPositionZ());
             }
 
             void ShootCannon()
             {
-                if (GameObject *pDefiasCannon = instance->GetGameObject(DefiasCannonGUID))
+                if (GameObject* pDefiasCannon = instance->GetGameObject(DefiasCannonGUID))
                 {
                     pDefiasCannon->SetGoState(GO_STATE_ACTIVE);
                     DoPlaySound(pDefiasCannon, SOUND_CANNONFIRE);
@@ -265,7 +171,7 @@ class instance_deadmines : public InstanceMapScript
 
             void BlastOutDoor()
             {
-                if (GameObject *pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
+                if (GameObject* pIronCladDoor = instance->GetGameObject(IronCladDoorGUID))
                 {
                     pIronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                     DoPlaySound(pIronCladDoor, SOUND_DESTROYDOOR);
@@ -274,19 +180,19 @@ class instance_deadmines : public InstanceMapScript
 
             void LeverStucked()
             {
-                if (GameObject *pDoorLever = instance->GetGameObject(DoorLeverGUID))
+                if (GameObject* pDoorLever = instance->GetGameObject(DoorLeverGUID))
                     pDoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
             }
 
-            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+            void OnGameObjectCreate(GameObject* go)
             {
-                switch(pGo->GetEntry())
+                switch(go->GetEntry())
                 {
-                    case GO_FACTORY_DOOR:   FactoryDoorGUID = pGo->GetGUID(); break;
-                    case GO_IRONCLAD_DOOR:  IronCladDoorGUID = pGo->GetGUID();  break;
-                    case GO_DEFIAS_CANNON:  DefiasCannonGUID = pGo->GetGUID();  break;
-                    case GO_DOOR_LEVER:     DoorLeverGUID = pGo->GetGUID();     break;
-                    case GO_MR_SMITE_CHEST: uiSmiteChestGUID = pGo->GetGUID();  break;
+                    case GO_FACTORY_DOOR:   FactoryDoorGUID = go->GetGUID(); break;
+                    case GO_IRONCLAD_DOOR:  IronCladDoorGUID = go->GetGUID();  break;
+                    case GO_DEFIAS_CANNON:  DefiasCannonGUID = go->GetGUID();  break;
+                    case GO_DOOR_LEVER:     DoorLeverGUID = go->GetGUID();     break;
+                    case GO_MR_SMITE_CHEST: uiSmiteChestGUID = go->GetGUID();  break;
                 }
             }
 
@@ -300,8 +206,8 @@ class instance_deadmines : public InstanceMapScript
                     break;
                 case EVENT_RHAHKZOR:
                     if (data == DONE)
-                        if (GameObject* pGo = instance->GetGameObject(FactoryDoorGUID))
-                            pGo->SetGoState(GO_STATE_ACTIVE);
+                        if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
+                            go->SetGoState(GO_STATE_ACTIVE);
                     break;
                 }
             }

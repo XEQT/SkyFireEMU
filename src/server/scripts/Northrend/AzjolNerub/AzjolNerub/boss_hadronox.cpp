@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -173,7 +173,7 @@ public:
 
             if (uiGrabTimer <= diff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
                     DoCast(pTarget, SPELL_WEB_GRAB);
 
                 uiGrabTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);

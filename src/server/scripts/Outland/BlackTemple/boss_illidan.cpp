@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -411,7 +411,7 @@ public:
                     Glaive->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_FLAME_ENRAGE, true);
                     DoResetThreat();
-                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget && pTarget->isAlive())
                     {
                         me->AddThreat(me->getVictim(), 5000000.0f);
@@ -786,7 +786,7 @@ public:
             {
                 EnterEvadeMode();
                 me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, 0);
-                sLog.outError("SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
+                sLog->outError("SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
             }
         }
 
@@ -876,7 +876,7 @@ public:
                     {
                         if (GETUNIT(Glaive, GlaiveGUID[i]))
                         {
-                            Glaive->SetVisible(VISIBILITY_OFF);
+                            Glaive->SetVisible(false);
                             Glaive->setDeathState(JUST_DIED); // Despawn the Glaive
                         }
                         GlaiveGUID[i] = 0;
@@ -1055,7 +1055,7 @@ public:
 
                     //PHASE_NORMAL_2
                 case EVENT_AGONIZING_FLAMES:
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AGONIZING_FLAMES);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_AGONIZING_FLAMES);
                     Timer[EVENT_AGONIZING_FLAMES] = 0;
                     break;
 
@@ -1080,12 +1080,12 @@ public:
                 switch(Event)
                 {
                 case EVENT_FIREBALL:
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
                     Timer[EVENT_FIREBALL] = 3000;
                     break;
 
                 case EVENT_DARK_BARRAGE:
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DARK_BARRAGE);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DARK_BARRAGE);
                     Timer[EVENT_DARK_BARRAGE] = 0;
                     break;
 
@@ -1229,7 +1229,7 @@ public:
                 if (Timer[EVENT_MAIEV_STEALTH])
                 {
                     me->SetFullHealth();
-                    me->SetVisible(VISIBILITY_ON);
+                    me->SetVisible(true);
                     Timer[EVENT_MAIEV_STEALTH] = 0;
                 }
                 me->InterruptNonMeleeSpells(false);
@@ -1271,7 +1271,7 @@ public:
         {
             if (GETCRE(Illidan, IllidanGUID))
             {
-                Unit *pTarget = CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, Illidan->AI())->SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit *pTarget = Illidan->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (!pTarget || !me->IsWithinDistInMap(pTarget, 80) || Illidan->IsWithinDistInMap(pTarget, 20))
                 {
@@ -1307,7 +1307,7 @@ public:
                 case EVENT_MAIEV_STEALTH:
                     {
                         me->SetFullHealth();
-                        me->SetVisible(VISIBILITY_ON);
+                        me->SetVisible(true);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         Timer[EVENT_MAIEV_STEALTH] = 0;
                         BlinkToPlayer();
@@ -1349,7 +1349,7 @@ public:
 
                 if (HealthBelowPct(50))
                 {
-                    me->SetVisible(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     if (GETCRE(Illidan, IllidanGUID))
                         CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, Illidan->AI())->DeleteFromThreatList(me->GetGUID());
@@ -1446,7 +1446,7 @@ public:
             me->SetUInt32Value(UNIT_NPC_FLAGS, 0); // Database sometimes has strange values..
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->setActive(false);
-            me->SetVisible(VISIBILITY_OFF);
+            me->SetVisible(false);
         }
 
         // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
@@ -1529,7 +1529,7 @@ public:
             for (uint8 i = 0; i < 2; ++i)
                 if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
                 {
-                    Spirit->SetVisible(VISIBILITY_OFF);
+                    Spirit->SetVisible(false);
                     SpiritGUID[i] = Spirit->GetGUID();
                 }
         }
@@ -1649,8 +1649,8 @@ public:
                 Timer = 2000;
                 break;
             case 1: // spirit appear
-                Spirit[0]->SetVisible(VISIBILITY_ON);
-                Spirit[1]->SetVisible(VISIBILITY_ON);
+                Spirit[0]->SetVisible(true);
+                Spirit[1]->SetVisible(true);
                 Timer = 2000;
                 break;
             case 2: // spirit help
@@ -1675,8 +1675,8 @@ public:
                 me->MonsterYell(SAY_AKAMA_BEWARE, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_AKAMA_BEWARE);
                 Channel->setDeathState(JUST_DIED);
-                Spirit[0]->SetVisible(VISIBILITY_OFF);
-                Spirit[1]->SetVisible(VISIBILITY_OFF);
+                Spirit[0]->SetVisible(false);
+                Spirit[1]->SetVisible(false);
                 Timer = 3000;
                 break;
             case 6:
@@ -1718,12 +1718,12 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (me->GetVisibility() == VISIBILITY_OFF)
+            if (!me->IsVisible())
             {
                 if (Check_Timer <= diff)
                 {
                     if (pInstance && pInstance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
-                        me->SetVisible(VISIBILITY_ON);
+                        me->SetVisible(true);
 
                     Check_Timer = 5000;
                 } else Check_Timer -= diff;
@@ -1882,7 +1882,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
         {
             if (Phase == PHASE_TALK_SEQUENCE)
             {
-                summon->SetVisible(VISIBILITY_OFF);
+                summon->SetVisible(false);
                 summon->setDeathState(JUST_DIED);
                 return;
             }
@@ -1903,7 +1903,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
         break;
     case MAIEV_SHADOWSONG:
         {
-            summon->SetVisible(VISIBILITY_OFF); // Leave her invisible until she has to talk
+            summon->SetVisible(false); // Leave her invisible until she has to talk
             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             MaievGUID = summon->GetGUID();
             CAST_AI(boss_maiev_shadowsong::boss_maievAI, summon->AI())->GetIllidanGUID(me->GetGUID());
@@ -1948,7 +1948,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     case 11:
         if (GETUNIT(Maiev, MaievGUID))
         {
-            Maiev->SetVisible(VISIBILITY_ON); // Maiev is now visible
+            Maiev->SetVisible(true); // Maiev is now visible
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true); // onoz she looks like she teleported!
             Maiev->SetInFront(me); // Have her face us
             me->SetInFront(Maiev); // Face her, so it's not rude =P
@@ -2235,7 +2235,7 @@ public:
                     AttackStart(pTarget);
                 else
                 {
-                    me->SetVisible(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     me->setDeathState(JUST_DIED);
                     return;
                 }
@@ -2246,7 +2246,7 @@ public:
                 GETUNIT(Illidan, IllidanGUID);
                 if (!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
                 {
-                    me->SetVisible(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     me->setDeathState(JUST_DIED);
                     return;
                 } else CheckTimer = 5000;

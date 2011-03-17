@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -136,7 +136,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
                 me->SetArmor(defaultarmor);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetVisible(VISIBILITY_ON);
+                me->SetVisible(true);
                 me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
 
@@ -171,7 +171,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 if (Summoned)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Summoned->AI()->AttackStart(pTarget);
 
                     Summons.Summon(Summoned);
@@ -207,7 +207,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         if (Phase == 2)
                         {
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetVisible(VISIBILITY_OFF);
+                            me->SetVisible(false);
                         }
                         AppearDelay_Timer = 2000;
                     }
@@ -243,7 +243,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         else
                         {
-                            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                             if (!me->HasInArc(2.5f, pTarget))
                                 pTarget = me->getVictim();
                             if (pTarget)
@@ -258,7 +258,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         //Target the tank ?
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         {
                             if (pTarget->GetTypeId() == TYPEID_PLAYER)
                             {
@@ -354,7 +354,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                         SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetVisible(VISIBILITY_ON);
+                                me->SetVisible(true);
 
                                 DoScriptText(SAY_SUMMON2, me);
                                 AppearDelay = true;
@@ -389,7 +389,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 Phase = 4;
                                 //To make sure she wont be invisible or not selecatble
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetVisible(VISIBILITY_ON);
+                                me->SetVisible(true);
                                 DoScriptText(SAY_VOIDA, me);
                                 DoScriptText(SAY_VOIDB, me);
                                 me->SetArmor(WV_ARMOR);

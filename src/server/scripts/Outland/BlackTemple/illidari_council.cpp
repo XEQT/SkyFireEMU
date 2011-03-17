@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -156,7 +156,7 @@ public:
                 Council[1] = pInstance->GetData64(DATA_VERASDARKSHADOW);
                 Council[2] = pInstance->GetData64(DATA_LADYMALANDE);
                 Council[3] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-            } else sLog.outError(ERROR_INST_DATA);
+            } else sLog->outError(ERROR_INST_DATA);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -402,7 +402,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         }
         else
         {
-            sLog.outError(ERROR_INST_DATA);
+            sLog->outError(ERROR_INST_DATA);
             EnterEvadeMode();
             return;
         }
@@ -450,7 +450,7 @@ struct boss_illidari_councilAI : public ScriptedAI
     {
         if (!pInstance)
         {
-            sLog.outError(ERROR_INST_DATA);
+            sLog->outError(ERROR_INST_DATA);
             return;
         }
 
@@ -557,7 +557,7 @@ public:
 
             if (HammerOfJusticeTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     // is in ~10-40 yd range
                     if (me->IsInRange(pTarget, 10.0f, 40.0f, false))
@@ -670,7 +670,7 @@ public:
 
             if (BlizzardTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_BLIZZARD);
                     BlizzardTimer = 45000 + rand()%46 * 1000;
@@ -681,7 +681,7 @@ public:
 
             if (FlamestrikeTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_FLAMESTRIKE);
                     FlamestrikeTimer = 55000 + rand()%46 * 1000;
@@ -738,7 +738,7 @@ public:
 
             if (EmpoweredSmiteTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_EMPOWERED_SMITE);
                     EmpoweredSmiteTimer = 38000;
@@ -753,7 +753,7 @@ public:
 
             if (DivineWrathTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_DIVINE_WRATH);
                     DivineWrathTimer = 40000 + rand()%41 * 1000;
@@ -803,7 +803,7 @@ public:
             AppearEnvenomTimer = 150000;
 
             HasVanished = false;
-            me->SetVisible(VISIBILITY_ON);
+            me->SetVisible(true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -838,12 +838,12 @@ public:
 
                 if (VanishTimer <= diff)                          // Disappear and stop attacking, but follow a random unit
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         VanishTimer = 30000;
                         AppearEnvenomTimer= 28000;
                         HasVanished = true;
-                        me->SetVisible(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoResetThreat();
                                                                 // Chase a unit. Check before DoMeleeAttackIfReady prevents from attacking
@@ -873,7 +873,7 @@ public:
                 {
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveChase(me->getVictim());
-                    me->SetVisible(VISIBILITY_ON);
+                    me->SetVisible(true);
                     AppearEnvenomTimer = 6000;
                 } else AppearEnvenomTimer -= diff;
             }

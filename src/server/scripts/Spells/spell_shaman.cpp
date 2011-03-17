@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,9 +27,10 @@
 enum ShamanSpells
 {
     SHAMAN_SPELL_GLYPH_OF_MANA_TIDE     = 55441,
+    SHAMAN_SPELL_MANA_TIDE_TOTEM        = 39609,
     SHAMAN_SPELL_FIRE_NOVA_R1           = 1535,
     SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1 = 8349,
-    
+
     //For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM  = 6474, //Spell casted by totem
     SHAMAN_TOTEM_SPELL_EARTHEN_POWER    = 59566,//Spell witch remove snare effect
@@ -53,7 +54,7 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -92,33 +93,42 @@ public:
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_FIRE_NOVA_R1))
                 return false;
-            if (sSpellMgr.GetFirstSpellInChain(SHAMAN_SPELL_FIRE_NOVA_R1) != sSpellMgr.GetFirstSpellInChain(spellEntry->Id))
+            if (sSpellMgr->GetFirstSpellInChain(SHAMAN_SPELL_FIRE_NOVA_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
                 return false;
 
-            uint8 rank = sSpellMgr.GetSpellRank(spellEntry->Id);
-            if (!sSpellMgr.GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank, true))
+            uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+            if (!sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank, true))
                 return false;
             return true;
         }
 
+        SpellCastResult CheckFireTotem()
+        {
+            // fire totem
+            if (!GetCaster()->m_SummonSlot[1])
+            {
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* caster = GetCaster())
+            Unit* caster = GetCaster();
+            uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+            if (uint32 spellId = sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank))
             {
-                uint8 rank = sSpellMgr.GetSpellRank(GetSpellInfo()->Id);
-                uint32 spellId = sSpellMgr.GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank);
-                // fire slot
-                if (spellId && caster->m_SummonSlot[1])
-                {
-                    Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
-                    if (totem && totem->isTotem())
-                        totem->CastSpell(totem, spellId, true);
-                }
+                Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
+                if (totem && totem->isTotem())
+                    totem->CastSpell(totem, spellId, true);
             }
         }
 
         void Register()
         {
+            OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova_SpellScript::CheckFireTotem);
             OnEffect += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
@@ -129,7 +139,56 @@ public:
     }
 };
 
-// 6474 - Earthbind Totem - Fix Talent:Earthen Power 
+// 39610 Mana Tide Totem
+class spell_sha_mana_tide_totem : public SpellScriptLoader
+{
+public:
+    spell_sha_mana_tide_totem() : SpellScriptLoader("spell_sha_mana_tide_totem") { }
+
+    class spell_sha_mana_tide_totem_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_mana_tide_totem_SpellScript)
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE))
+                return false;
+            if (!sSpellStore.LookupEntry(SHAMAN_SPELL_MANA_TIDE_TOTEM))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            if (Unit* unitTarget = GetHitUnit())
+            {
+                if (unitTarget->getPowerType() == POWER_MANA)
+                {
+                    int32 effValue = GetEffectValue();
+                    // Glyph of Mana Tide
+                    if (Unit *owner = caster->GetOwner())
+                        if (AuraEffect *dummy = owner->GetAuraEffect(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE, 0))
+                            effValue += dummy->GetAmount();
+                    // Regenerate 6% of Total Mana Every 3 secs
+                    int32 effBasePoints0 = int32(CalculatePctN(unitTarget->GetMaxPower(POWER_MANA), effValue));
+                    caster->CastCustomSpell(unitTarget, SHAMAN_SPELL_MANA_TIDE_TOTEM, &effBasePoints0, NULL, NULL, true, NULL, NULL, GetOriginalCaster()->GetGUID());
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_sha_mana_tide_totem_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_mana_tide_totem_SpellScript();
+    }
+};
+
+// 6474 - Earthbind Totem - Fix Talent:Earthen Power
 class spell_sha_earthbind_totem : public SpellScriptLoader
 {
 public:
@@ -137,11 +196,11 @@ public:
 
     class spell_sha_earthbind_totem_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_sha_earthbind_totem_AuraScript); 
-        
+        PrepareAuraScript(spell_sha_earthbind_totem_AuraScript);
+
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM)) 
+            if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM))
                 return false;
             if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHEN_POWER))
                 return false;
@@ -173,5 +232,6 @@ void AddSC_shaman_spell_scripts()
 {
     new spell_sha_astral_shift();
     new spell_sha_fire_nova();
+    new spell_sha_mana_tide_totem();
     new spell_sha_earthbind_totem();
 }

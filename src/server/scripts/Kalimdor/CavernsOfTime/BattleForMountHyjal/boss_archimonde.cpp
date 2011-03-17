@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -463,15 +463,15 @@ public:
                 if (pInstance)
                 {
                     // Do not let the raid skip straight to Archimonde. Visible and hostile ONLY if Azagalor is finished.
-                    if ((pInstance->GetData(DATA_AZGALOREVENT) < DONE) && ((me->GetVisibility() != VISIBILITY_OFF) || (me->getFaction() != 35)))
+                    if ((pInstance->GetData(DATA_AZGALOREVENT) < DONE) && (me->IsVisible() || (me->getFaction() != 35)))
                     {
-                        me->SetVisible(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         me->setFaction(35);
                     }
-                    else if ((pInstance->GetData(DATA_AZGALOREVENT) >= DONE) && ((me->GetVisibility() != VISIBILITY_ON) || (me->getFaction() == 35)))
+                    else if ((pInstance->GetData(DATA_AZGALOREVENT) >= DONE) && (!me->IsVisible() || (me->getFaction() == 35)))
                     {
                         me->setFaction(1720);
-                        me->SetVisible(VISIBILITY_ON);
+                        me->SetVisible(true);
                     }
                 }
 
@@ -526,7 +526,7 @@ public:
                     Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
                     if (Check)
                     {
-                        Check->SetVisible(VISIBILITY_OFF);
+                        Check->SetVisible(false);
 
                         if (me->IsWithinDistInMap(Check, 75))
                         {
@@ -548,7 +548,7 @@ public:
                     me->GetMotionMaster()->MoveIdle();
 
                     //all members of raid must get this buff
-                    DoCast(me->getVictim(), SPELL_PROTECTION_OF_ELUNE);
+                    DoCastVictim(SPELL_PROTECTION_OF_ELUNE, true);
                     HasProtected = true;
                     Enraged = true;
                 }
@@ -583,7 +583,7 @@ public:
 
             if (GripOfTheLegionTimer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
                 GripOfTheLegionTimer = urand(5000,25000);
             } else GripOfTheLegionTimer -= diff;
 
@@ -594,7 +594,7 @@ public:
                 else
                     DoScriptText(SAY_AIR_BURST2, me);
 
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
                 AirBurstTimer = urand(25000,40000);
             } else AirBurstTimer -= diff;
 
@@ -611,7 +611,7 @@ public:
                 else
                     DoScriptText(SAY_DOOMFIRE2, me);
 
-                Unit *temp = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit *temp = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (!temp)
                     temp = me->getVictim();
 
@@ -626,7 +626,7 @@ public:
             {
                 if (CanUseFingerOfDeath())
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
                     MeleeRangeCheckTimer = 1000;
                 }
 

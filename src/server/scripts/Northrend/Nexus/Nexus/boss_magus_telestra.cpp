@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -114,7 +114,7 @@ public:
             bIsWaitingToAppear = false;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetVisible(VISIBILITY_ON);
+            me->SetVisible(true);
 
             if (pInstance)
                 pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
@@ -167,7 +167,7 @@ public:
                         break;
                     }
                 }
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     Summoned->AI()->AttackStart(pTarget);
                 return Summoned->GetGUID();
             }
@@ -225,7 +225,7 @@ public:
                     me->GetMotionMaster()->Clear();
                     me->GetMap()->CreatureRelocation(me, CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
                     DoCast(me, SPELL_TELESTRA_BACK);
-                    me->SetVisible(VISIBILITY_ON);
+                    me->SetVisible(true);
                     if (Phase == 1)
                         Phase = 2;
                     if (Phase == 3)
@@ -248,7 +248,7 @@ public:
                 Phase = 1;
                 me->CastStop();
                 me->RemoveAllAuras();
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
                 uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
@@ -265,7 +265,7 @@ public:
                 Phase = 3;
                 me->CastStop();
                 me->RemoveAllAuras();
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
                 uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
@@ -290,7 +290,7 @@ public:
 
             if (uiIceNovaTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_ICE_NOVA, false);
                     uiCooldown = 1500;
@@ -310,7 +310,7 @@ public:
 
             if (uiFireBombTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_FIREBOMB, false);
                     uiCooldown = 2*IN_MILLISECONDS;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -323,7 +323,7 @@ public:
             nWeaver = 0;
         }
 
-        void KilledUnit()
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }
@@ -476,7 +476,7 @@ public:
                     else uiGuardiansOfIcecrownTimer -= diff;
                 }
 
-                if (me->hasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
                 if (uint32 eventId = events.GetEvent())
@@ -614,7 +614,7 @@ public:
                             break;
                         }
                         case EVENT_FISSURE:
-                            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                                 DoCast(pTarget, SPELL_SHADOW_FISURE);
                             events.RepeatEvent(urand(10000,45000));
                             break;

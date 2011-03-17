@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -575,7 +575,7 @@ public:
 
     struct npc_nesingwary_trapperAI : public ScriptedAI
     {
-        npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) { c->SetVisible(VISIBILITY_OFF); }
+        npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) { c->SetVisible(false); }
 
         uint64 go_caribouGUID;
         uint8  Phase;
@@ -583,7 +583,7 @@ public:
 
         void Reset()
         {
-            me->SetVisible(VISIBILITY_OFF);
+            me->SetVisible(false);
             uiPhaseTimer = 2500;
             Phase = 1;
             go_caribouGUID = 0;
@@ -613,7 +613,7 @@ public:
                 switch (Phase)
                 {
                     case 1:
-                        me->SetVisible(VISIBILITY_ON);
+                        me->SetVisible(true);
                         uiPhaseTimer = 2000;
                         Phase = 2;
                         break;
@@ -775,7 +775,7 @@ public:
                             break;
 
                         case 7:
-                            me->ForcedDespawn();
+                            me->DespawnOrUnsummon();
                             IntroPhase = 0;
                             IntroTimer = 0;
                             break;
@@ -1328,7 +1328,7 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            me->addUnitState(UNIT_STAT_STUNNED);
+            me->AddUnitState(UNIT_STAT_STUNNED);
             me->CastSpell(me, SPELL_STUN, true);
             if (me->isSummon())
                 if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
@@ -1445,7 +1445,7 @@ public:
             DoScriptText(SAY_LERYSSA_1, pLeryssa);
             pArlos->Kill(pArlos, false);
             pLeryssa->RemoveAura(SPELL_STUN);
-            pLeryssa->clearUnitState(UNIT_STAT_STUNNED);
+            pLeryssa->ClearUnitState(UNIT_STAT_STUNNED);
             pLeryssa->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             pLeryssa->GetMotionMaster()->MovePoint(0,3722.114502f, 3564.201660f, 477.441437f);
 
@@ -1495,7 +1495,7 @@ public:
                 if (Creature* pTalbot = me->FindNearestCreature(NPC_PRINCE_VALANAR, 50.0f, true))
                     CAST_AI(npc_counselor_talbot::npc_counselor_talbotAI, pTalbot->AI())->bCheck = true;
 
-                me->addUnitState(UNIT_STAT_STUNNED);
+                me->AddUnitState(UNIT_STAT_STUNNED);
                 me->CastSpell(me, SPELL_STUN, true);
 
                 if (me->isSummon())
@@ -1945,7 +1945,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
+                pPlayer->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
         void UpdateEscortAI(const uint32 /*diff*/)
@@ -2130,7 +2130,7 @@ public:
                 (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||
                 me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
             {
-                Quest const* qInfo = sObjectMgr.GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
                     CAST_PLR(pKiller)->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0],0);
             }
@@ -2375,9 +2375,9 @@ enum eHiddenCultist
     SAY_HIDDEN_CULTIST_4                        = -1571047
 };
 
-#define GOSSIP_ITEM_TOM_HEGGER "What do you know about the Cult of the Damned?"
-#define GOSSIP_ITEM_GUARD_MITCHELLS "How long have you worked for the Cult of the Damned?"
-#define GOSSIP_ITEM_SALTY_JOHN_THORPE "I have a reason to believe you're involved in the cultist activity"
+const char* GOSSIP_ITEM_TOM_HEGGER = "What do you know about the Cult of the Damned?";
+const char* GOSSIP_ITEM_GUARD_MITCHELLS = "How long have you worked for the Cult of the Damned?";
+const char* GOSSIP_ITEM_SALTY_JOHN_THORPE = "I have a reason to believe you're involved in the cultist activity";
 
 class npc_hidden_cultist : public CreatureScript
 {
@@ -2418,11 +2418,11 @@ public:
             me->RestoreFaction();
         }
 
-        void DoAction(const int32 iParam)
+        void DoAction(const int32 /*iParam*/)
         {
             me->StopMoving();
-            me->SetUInt32Value(UNIT_NPC_FLAGS,0);
-            if (Player* pPlayer = me->GetPlayer(*me,uiPlayerGUID))
+            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+            if (Player* pPlayer = me->GetPlayer(*me, uiPlayerGUID))
             {
                 me->SetInFront(pPlayer);
                 me->SendMovementFlagUpdate();
@@ -2431,7 +2431,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(const uint64 &uiGuid, int32 iId)
+        void SetGUID(const uint64 &uiGuid, int32 /*iId*/)
         {
             uiPlayerGUID = uiGuid;
         }
@@ -2497,7 +2497,7 @@ public:
                             uiEventPhase = 0;
                         }
                         break;
-                }                       
+                }
             }else uiEventTimer -= uiDiff;
 
             if (!UpdateVictim())
@@ -2515,7 +2515,7 @@ public:
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         uint32 uiGossipText = 0;
-        char* charGossipItem = "";
+        const char* charGossipItem;
 
         switch(pCreature->GetEntry())
         {
@@ -2532,6 +2532,7 @@ public:
                 charGossipItem = GOSSIP_ITEM_GUARD_MITCHELLS;
                 break;
             default:
+                charGossipItem = "";
                 return false;
         }
 
@@ -2546,7 +2547,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 
@@ -2559,12 +2560,12 @@ public:
 
         if (uiAction == GOSSIP_ACTION_TRADE)
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-    
+
         return true;
     }
 
 };
-    
+
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit;

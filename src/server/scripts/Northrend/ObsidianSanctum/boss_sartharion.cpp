@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -284,7 +284,6 @@ public:
             if (me->HasAura(SPELL_TWILIGHT_REVENGE))
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
 
-            me->ResetLootMode();
             me->SetHomePosition(3246.57f, 551.263f, 58.6164f, 4.66003f);
 
             achievProgress = 0;
@@ -658,7 +657,7 @@ public:
             // Lavas Strike
             if (m_uiLavaStrikeTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     CastLavaStrikeOnTarget(pTarget);
 
@@ -696,10 +695,6 @@ public:
             }
             else
                 m_uiVesperonTimer -= uiDiff;
-
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
 
             DoMeleeAttackIfReady();
 
@@ -1056,7 +1051,7 @@ public:
             // shadow fissure
             if (m_uiShadowFissureTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
 
                 m_uiShadowFissureTimer = urand(15000,20000);
@@ -1082,10 +1077,6 @@ public:
             }
             else
                 m_uiShadowBreathTimer -= uiDiff;
-
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
 
             DoMeleeAttackIfReady();
         }
@@ -1157,7 +1148,7 @@ public:
             // shadow fissure
             if (m_uiShadowFissureTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
                 m_uiShadowFissureTimer = urand(15000,20000);
@@ -1192,10 +1183,6 @@ public:
             }
             else
                 m_uiShadowBreathTimer -= uiDiff;
-
-            // Don't attack current target if he's not visible for us.
-            if (me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
 
             DoMeleeAttackIfReady();
         }
@@ -1261,7 +1248,7 @@ public:
             // shadow fissure
             if (m_uiShadowFissureTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
                 m_uiShadowFissureTimer = urand(15000,20000);
@@ -1293,10 +1280,6 @@ public:
             }
             else
                 m_uiShadowBreathTimer -= uiDiff;
-
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
 
             DoMeleeAttackIfReady();
         }
@@ -1349,7 +1332,7 @@ public:
                         pTarget->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, pTarget);
                 }
             }
-            
+
             me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,me);
         }
 
@@ -1400,7 +1383,7 @@ public:
         {
             if(uiDespawnTimer < uiDiff)
             {
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->Kill(me);
                 uiDespawnTimer = 28000;
                 return;
@@ -1496,7 +1479,7 @@ public:
         {
             if(uiDespawnTimer < uiDiff)
             {
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->Kill(me);
                 uiDespawnTimer = 28000;
                 return;

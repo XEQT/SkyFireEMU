@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -108,7 +108,7 @@ public:
             uiBubbleCheckerTimer = 1000;
             uiWaterBoltVolleyTimer = urand(10000, 15000);
 
-            me->SetVisible(VISIBILITY_ON);
+            me->SetVisible(true);
             DespawnWaterElements();
 
             if (pInstance)
@@ -195,7 +195,7 @@ public:
                 DoCast(me, SPELL_PROTECTIVE_BUBBLE, true);
             }
 
-            me->SetVisible(VISIBILITY_ON);
+            me->SetVisible(true);
             me->GetMotionMaster()->MoveChase(me->getVictim());
         }
 
@@ -227,7 +227,7 @@ public:
                             DoCast(me, SPELL_DRAINED);
                             bIsExploded = true;
                             me->AttackStop();
-                            me->SetVisible(VISIBILITY_OFF);
+                            me->SetVisible(false);
                             for (uint8 i = 0; i < 10; i++)
                             {
                                 int tmp = urand(0, MAX_SPAWN_LOC-1);
@@ -277,7 +277,7 @@ public:
             if (bIsExploded)
             {
                 bIsExploded = false;
-                me->SetVisible(VISIBILITY_ON);
+                me->SetVisible(true);
             }
 
             DespawnWaterElements();
@@ -376,7 +376,7 @@ public:
                         {
                             if (pIchoron->AI())
                                 pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);
-                            me->ForcedDespawn();
+                            me->DespawnOrUnsummon();
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -237,8 +237,9 @@ public:
             case 5:
                 if (pInstance)
                 {
+                    pInstance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
                     pInstance->SetData(TYPE_RING_OF_LAW,DONE);
-                    sLog.outDebug("TSCR: npc_grimstone: event reached end and set complete.");
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_grimstone: event reached end and set complete.");
                 }
                 break;
             }
@@ -318,7 +319,7 @@ public:
                         break;
                     case 4:
                         CanWalk = true;
-                        me->SetVisible(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         SummonRingMob();
                         Event_Timer = 8000;
                         break;
@@ -332,7 +333,7 @@ public:
                         Event_Timer = 0;
                         break;
                     case 7:
-                        me->SetVisible(VISIBILITY_ON);
+                        me->SetVisible(true);
                         HandleGameObject(DATA_ARENA1, false);
                         DoScriptText(SCRIPT_TEXT6, me);//4
                         CanWalk = true;
@@ -343,7 +344,7 @@ public:
                         Event_Timer = 5000;
                         break;
                     case 9:
-                        me->SetVisible(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         SummonRingBoss();
                         Event_Timer = 0;
                         break;
@@ -669,7 +670,7 @@ public:
             case 0:me->Say(SAY_DUGHAL_FREE, LANG_UNIVERSAL, PlayerGUID); break;
             case 1:pInstance->SetData(DATA_DUGHAL,ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
             case 2:
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pInstance->SetData(DATA_DUGHAL,ENCOUNTER_STATE_ENDED);
@@ -684,7 +685,7 @@ public:
         {
             if (IsBeingEscorted && killer == me)
             {
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pInstance->SetData(DATA_DUGHAL,ENCOUNTER_STATE_ENDED);
@@ -696,13 +697,13 @@ public:
             if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
             if ((pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_ENDED)
             {
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             else
             {
-                me->SetVisible(VISIBILITY_ON);
+                me->SetVisibility(VISIBILITY_ON);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -728,8 +729,8 @@ public:
 #define SAY_WINDSOR_9               "Ah, there it is!"
 #define MOB_ENTRY_REGINALD_WINDSOR  9682
 
-Player* pPlayerStart;
 /*
+Player* pPlayerStart;
 class npc_marshal_windsor : public CreatureScript
 {
 public:
@@ -821,7 +822,7 @@ public:
                 pInstance->SetData(DATA_GATE_SC,0);
                 break;
             case 19:
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SummonCreature(MOB_ENTRY_REGINALD_WINDSOR,403.61f,-51.71f,-63.92f,3.600434f,TEMPSUMMON_DEAD_DESPAWN ,0);
@@ -864,13 +865,13 @@ public:
                 }
             if ((pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_SUPPLY_ROOM) == ENCOUNTER_STATE_ENDED)
             {
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             else
             {
-                me->SetVisible(VISIBILITY_ON);
+                me->SetVisibility(VISIBILITY_ON);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -902,8 +903,8 @@ public:
 #define MOB_ENTRY_SHILL_DINGER      9678
 #define MOB_ENTRY_CREST_KILLER      9680
 
-int wp = 0;
 /*
+int wp = 0;
 class npc_marshal_reginald_windsor : public CreatureScript
 {
 public:
@@ -1159,7 +1160,7 @@ public:
         {
             if (IsBeingEscorted && killer == me)
             {
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_ENDED);
@@ -1174,7 +1175,7 @@ public:
             case 2:
                 pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
             case 4:
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_ENDED);
@@ -1187,13 +1188,13 @@ public:
             if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
             if ((pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_TOBIAS) == ENCOUNTER_STATE_ENDED)
             {
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisibility(VISIBILITY_OFF);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             else
             {
-                me->SetVisible(VISIBILITY_ON);
+                me->SetVisibility(VISIBILITY_ON);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -1231,39 +1232,38 @@ class npc_rocknot : public CreatureScript
 public:
     npc_rocknot() : CreatureScript("npc_rocknot") { }
 
-    bool ChooseReward(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest, uint32 /*item*/)
+    bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*item*/)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
-
-        if (!pInstance)
+        InstanceScript* instance = creature->GetInstanceScript();
+        if (!instance)
             return true;
 
-        if (pInstance->GetData(TYPE_BAR) == DONE || pInstance->GetData(TYPE_BAR) == SPECIAL)
+        if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
             return true;
 
-        if (_Quest->GetQuestId() == QUEST_ALE)
+        if (quest->GetQuestId() == QUEST_ALE)
         {
-            if (pInstance->GetData(TYPE_BAR) != IN_PROGRESS)
-                pInstance->SetData(TYPE_BAR,IN_PROGRESS);
+            if (instance->GetData(TYPE_BAR) != IN_PROGRESS)
+                instance->SetData(TYPE_BAR, IN_PROGRESS);
 
-            pInstance->SetData(TYPE_BAR,SPECIAL);
+            instance->SetData(TYPE_BAR, SPECIAL);
 
             //keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
-            if (pInstance->GetData(TYPE_BAR) == SPECIAL)
+            if (instance->GetData(TYPE_BAR) == SPECIAL)
             {
-                DoScriptText(SAY_GOT_BEER, pCreature);
-                pCreature->CastSpell(pCreature,SPELL_DRUNKEN_RAGE,false);
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_rocknot::npc_rocknotAI, pCreature->AI()))
-                    pEscortAI->Start(false, false);
+                DoScriptText(SAY_GOT_BEER, creature);
+                creature->CastSpell(creature, SPELL_DRUNKEN_RAGE, false);
+                if (npc_escortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
+                    escortAI->Start(false, false);
             }
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_rocknotAI(pCreature);
+        return new npc_rocknotAI(creature);
     }
 
     struct npc_rocknotAI : public npc_escortAI

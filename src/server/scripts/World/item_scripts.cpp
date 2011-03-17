@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -141,32 +141,6 @@ public:
 };
 
 /*#####
-# item_flying_machine
-#####*/
-
-class item_flying_machine : public ItemScript
-{
-public:
-    item_flying_machine() : ItemScript("item_flying_machine") { }
-
-    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
-    {
-        uint32 itemId = pItem->GetEntry();
-        if (itemId == 34060)
-            if (pPlayer->GetBaseSkillValue(SKILL_RIDING) >= 225)
-                return false;
-
-        if (itemId == 34061)
-            if (pPlayer->GetBaseSkillValue(SKILL_RIDING) == 300)
-                return false;
-
-        sLog.outDebug("TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
-        pPlayer->SendEquipError(EQUIP_ERR_CANT_EQUIP_SKILL,pItem,NULL);
-        return true;
-    }
-};
-
-/*#####
 # item_gor_dreks_ointment
 #####*/
 
@@ -247,41 +221,6 @@ public:
 };
 
 /*#####
-# item_harvesters_gift
-#####*/
-#define GHOULS 28845
-
-class item_harvesters_gift : public ItemScript
-{
-public:
-    item_harvesters_gift() : ItemScript("item_harvesters_gift") { }
-
-    bool OnUse(Player* pPlayer, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
-    {
-        std::list<Creature*> MinionList;
-        pPlayer->GetAllMinionsByEntry(MinionList,GHOULS);
-
-        if (pPlayer->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (!MinionList.empty())
-            {
-                if (MinionList.size() < 5)
-                    return false;
-                else
-                {
-                    //This should be sent to the player as red text.
-                    pPlayer->Say("You have created enough ghouls. Return to Gothik the Harvester at Death's Breach.",LANG_UNIVERSAL);
-                    return true;
-                }
-            }
-            else
-                return false;
-        }
-        return true;
-    }
-};
-
-/*#####
 # item_pile_fake_furs
 #####*/
 
@@ -340,7 +279,7 @@ public:
         pGo->SummonGameObject(GO_HIGH_QUALITY_FUR, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
         if (TempSummon* summon = pPlayer->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, pGo->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
-            summon->SetVisible(VISIBILITY_OFF);
+            summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);
             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
@@ -498,7 +437,7 @@ public:
     {
         if (pPlayer->GetQuestStatus(QUEST_THE_PERFECT_SPIES) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Creature* target = pPlayer->FindNearestCreature(NPC_VANIRAS_SENTRY_TOTEM, 10.0f))
+            if (pPlayer->FindNearestCreature(NPC_VANIRAS_SENTRY_TOTEM, 10.0f))
                 return false;
             else
                 pPlayer->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
@@ -509,44 +448,18 @@ public:
     }
 };
 
-/*#####
-# item_tiki_torch
-#####*/
-
-class item_tiki_torch : public ItemScript
-{
-public:
-    item_tiki_torch() : ItemScript("item_tiki_torch") { }
-
-    bool OnUse(Player *pPlayer, Item *pItem, SpellCastTargets const & /*targets*/)
-    {
-        if (pPlayer->GetQuestStatus(26357) == QUEST_STATUS_INCOMPLETE)
-
-        if (pPlayer->FindNearestCreature(42704,15))
-            {
-                pPlayer->CastSpell(pPlayer, 79513, true, NULL); 
-                pPlayer->KilledMonsterCredit(42704, 0);
-                return true;
-            }
-        return false;   
-    }
-};
-
 void AddSC_item_scripts()
 {
-    new item_only_for_flight;
-    new item_draenei_fishing_net;
-    new item_nether_wraith_beacon;
-    new item_flying_machine;
-    new item_gor_dreks_ointment;
-    new item_incendiary_explosives;
-    new item_mysterious_egg;
-    new item_disgusting_jar;
-    new item_harvesters_gift;
-    new item_pile_fake_furs;
-    new item_petrov_cluster_bombs;
-    new item_dehta_trap_smasher;
-    new item_trident_of_nazjan;
+    new item_only_for_flight();
+    new item_draenei_fishing_net();
+    new item_nether_wraith_beacon();
+    new item_gor_dreks_ointment();
+    new item_incendiary_explosives();
+    new item_mysterious_egg();
+    new item_disgusting_jar();
+    new item_pile_fake_furs();
+    new item_petrov_cluster_bombs();
+    new item_dehta_trap_smasher();
+    new item_trident_of_nazjan();
     new item_captured_frog();
-    new item_tiki_torch();
 }

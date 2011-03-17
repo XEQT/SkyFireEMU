@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,14 +38,20 @@ enum eTypes
     TYPE_ALGALON                = 13,
     TYPE_COLOSSUS               = 14,
 
-    DATA_STEELBREAKER           = 20,
-    DATA_MOLGEIM                = 21,
-    DATA_BRUNDIR                = 22,
-    DATA_RUNEMASTER_MOLGEIM     = 23,
-    DATA_STORMCALLER_BRUNDIR    = 24,
-    DATA_EXP_COMMANDER          = 25,
+    // Assembly of Iorn
+    DATA_STEELBREAKER,
+    DATA_MOLGEIM,
+    DATA_BRUNDIR,
 
+    DATA_EXP_COMMANDER,
 
+    // Kologarn:
+    DATA_LEFT_ARM,
+    DATA_RIGHT_ARM,
+};
+
+enum eNPCs
+{
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
     NPC_RAZORSCALE              = 33186,
@@ -55,6 +61,12 @@ enum eTypes
     NPC_MOLGEIM                 = 32927,
     NPC_BRUNDIR                 = 32857,
     NPC_KOLOGARN                = 32930,
+    NPC_KOLOGARN_BRIDGE         = 34297,
+    NPC_FOCUSED_EYEBEAM         = 33632,
+    NPC_FOCUSED_EYEBEAM_RIGHT   = 33802,
+    NPC_LEFT_ARM                = 32933,
+    NPC_RIGHT_ARM               = 32934,
+    NPC_RUBBLE                  = 33768,
     NPC_AURIAYA                 = 33515,
     NPC_MIMIRON                 = 33350,
     NPC_HODIR                   = 32845,
@@ -63,7 +75,10 @@ enum eTypes
     NPC_VEZAX                   = 33271,
     NPC_YOGGSARON               = 33288,
     NPC_ALGALON                 = 32871,
+};
 
+enum eTowerEvents
+{
     EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED     = 21032,
     EVENT_TOWER_OF_FLAMES_DESTROYED    = 21033,

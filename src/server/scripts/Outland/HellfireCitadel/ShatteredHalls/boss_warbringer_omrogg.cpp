@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -266,7 +266,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 //summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 //summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                summoned->SetVisible(VISIBILITY_OFF);
+                summoned->SetVisible(false);
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -383,7 +383,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 if (ResetThreat_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     {
                         DoYellForThreat();
                         DoResetThreat();

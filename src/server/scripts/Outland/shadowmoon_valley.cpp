@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -29,7 +29,6 @@ mob_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
 npcs_flanis_swiftwing_and_kagrosh
 npc_murkblood_overseer
-npc_neltharaku
 npc_karynaku
 npc_oronok_tornheart
 npc_overlord_morghor
@@ -43,6 +42,7 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Group.h"
 
 /*#####
 # mob_mature_netherwing_drake
@@ -226,7 +226,7 @@ public:
 
             FlyTimer = 10000;
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            me->SetVisible(VISIBILITY_ON);
+            me->SetVisible(true);
         }
 
         void SpellHit(Unit* caster, const SpellEntry* spell)
@@ -271,7 +271,7 @@ public:
 
                     PlayerGUID = 0;
                 }
-                me->SetVisible(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();
@@ -561,60 +561,6 @@ public:
 };
 
 
-/*######
-## npc_neltharaku
-######*/
-
-#define GOSSIP_HN "I am listening, dragon"
-#define GOSSIP_SN1 "But you are dragons! How could orcs do this to you?"
-#define GOSSIP_SN2 "Your mate?"
-#define GOSSIP_SN3 "I have battled many beasts, dragon. I will help you."
-
-class npc_neltharaku : public CreatureScript
-{
-public:
-    npc_neltharaku() : CreatureScript("npc_neltharaku") { }
-
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        pPlayer->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(10614, pCreature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                pPlayer->SEND_GOSSIP_MENU(10615, pCreature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                pPlayer->SEND_GOSSIP_MENU(10616, pCreature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->AreaExploredOrEventHappens(10814);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
-        if (pPlayer->GetQuestStatus(10814) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_HN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        pPlayer->SEND_GOSSIP_MENU(10613, pCreature->GetGUID());
-
-        return true;
-    }
-
-};
-
 
 /*######
 ## npc_oronok
@@ -808,7 +754,7 @@ public:
             if (Illidan)
             {
                 IllidanGUID = Illidan->GetGUID();
-                Illidan->SetVisible(VISIBILITY_OFF);
+                Illidan->SetVisible(false);
             }
             if (PlayerGUID)
             {
@@ -840,7 +786,7 @@ public:
             case 2: DoScriptText(OVERLORD_YELL_1, me, plr); return 4500; break;
             case 3: me->SetInFront(plr); return 3200;  break;
             case 4: DoScriptText(OVERLORD_SAY_2, me, plr); return 2000; break;
-            case 5: Illi->SetVisible(VISIBILITY_ON);
+            case 5: Illi->SetVisible(true);
                  Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); return 350; break;
             case 6:
                 Illi->CastSpell(Illi, SPELL_ONE, true);
@@ -876,7 +822,7 @@ public:
                 return 500; break;
             case 21: DoScriptText(OVERLORD_SAY_5, me); return 500; break;
             case 22:
-                Illi->SetVisible(VISIBILITY_OFF);
+                Illi->SetVisible(false);
                 Illi->setDeathState(JUST_DIED);
                 return 1000; break;
             case 23: me->SetUInt32Value(UNIT_FIELD_BYTES_1,0); return 2000; break;
@@ -1257,7 +1203,7 @@ public:
             AggroTargetGUID = 0;
             Timers = false;
 
-            me->addUnitState(UNIT_STAT_ROOT);
+            me->AddUnitState(UNIT_STAT_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
         }
@@ -1301,7 +1247,7 @@ public:
                 if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->clearUnitState(UNIT_STAT_ROOT);
+                    me->ClearUnitState(UNIT_STAT_ROOT);
 
                     float x, y, z;
                     AggroTarget->GetPosition(x,y,z);
@@ -1429,7 +1375,7 @@ public:
             Announced = false;
             Failed = false;
 
-            me->SetVisible(VISIBILITY_OFF);
+            me->SetVisible(false);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -1463,7 +1409,6 @@ public:
                     if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
                     {
                         GroupMember->FailQuest(QUEST_BATTLE_OF_THE_CRIMSON_WATCH);
-                        GroupMember->SetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, QUEST_STATUS_NONE);
                         ++FailedMemberCount;
                     }
                     ++GroupMemberCount;
@@ -1488,7 +1433,6 @@ public:
                         if (GroupMember && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
                         {
                             GroupMember->FailQuest(QUEST_BATTLE_OF_THE_CRIMSON_WATCH);
-                            GroupMember->SetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, QUEST_STATUS_NONE);
                         }
                     }
                     Failed = true;
@@ -1609,7 +1553,7 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     {
                         if (pTarget->GetTypeId() == TYPEID_PLAYER)
                         {
@@ -1883,7 +1827,6 @@ void AddSC_shadowmoon_valley()
     new npc_drake_dealer_hurlunk();
     new npcs_flanis_swiftwing_and_kagrosh();
     new npc_murkblood_overseer();
-    new npc_neltharaku();
     new npc_karynaku();
     new npc_oronok_tornheart();
     new npc_overlord_morghor();
