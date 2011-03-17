@@ -53,6 +53,7 @@
 #include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "GameObjectAI.h"
+#include "Group.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 {
