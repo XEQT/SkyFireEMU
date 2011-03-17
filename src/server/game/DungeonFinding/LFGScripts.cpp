@@ -106,7 +106,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         sLFGMgr.OfferContinue(group);
 }
 
-void LFGScripts::OnDisband(Group* group)
+void LFGScripts::OnDisband(Group* /*group*/)
 {
     uint64 gguid = group->GetGUID();
     sLog.outDebug("LFGScripts::OnDisband [" UI64FMTD "]", gguid);

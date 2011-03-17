@@ -1808,7 +1808,7 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
    @param[in]     dungeonId Id of the dungeon finished 
    @param[in]     plr Player to reward
 */
-void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
+void LFGMgr::RewardDungeonDoneFor(const uint32 /*dungeonId*/, Player* player)
 {
     Group* group = player->GetGroup();
     if (!group || !group->isLFGGroup())
