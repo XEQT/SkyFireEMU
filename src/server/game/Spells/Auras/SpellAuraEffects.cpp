@@ -2900,7 +2900,7 @@ void AuraEffect::HandleModStealth(AuraApplication const *aurApp, uint8 mode, boo
 
         // apply only if not in GM invisibility (and overwrite invisibility state)
         if (target->GetVisibility() != VISIBILITY_OFF)
-            target->SetVisibility(VISIBILITY_GROUP_STEALTH);
+            target->SetVisible(VISIBILITY_GROUP_STEALTH);
     }
     else if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH)) // if last SPELL_AURA_MOD_STEALTH
     {
@@ -2909,7 +2909,7 @@ void AuraEffect::HandleModStealth(AuraApplication const *aurApp, uint8 mode, boo
             target->RemoveByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_STEALTH);
 
         if (target->GetVisibility() != VISIBILITY_OFF)
-            target->SetVisibility(VISIBILITY_ON);
+            target->SetVisible(VISIBILITY_ON);
     }
 }
 
@@ -3004,8 +3004,8 @@ void AuraEffect::HandlePhase(AuraApplication const *aurApp, uint8 mode, bool app
         target->SetPhaseMask(PHASEMASK_NORMAL, false);
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
-    if (target->GetVisibility() != VISIBILITY_OFF)
-        target->SetVisibility(target->GetVisibility());
+	if (!target->IsVisible())
+		target->UpdateObjectVisibility();
 }
 
 /**********************/

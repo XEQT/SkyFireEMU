@@ -377,9 +377,9 @@ public:
                 pSylvanas->Respawn();
 
             if (Creature* pFalric = instance->GetCreature(uiFalric))
-                pFalric->SetVisibility(VISIBILITY_OFF);
+                pFalric->SetVisible(VISIBILITY_OFF);
             if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
-                pMarwyn->SetVisibility(VISIBILITY_OFF);
+                pMarwyn->SetVisible(VISIBILITY_OFF);
         }
 
         // spawn a wave on behalf of the summoner.
@@ -387,7 +387,7 @@ public:
         {
             uint32 index;
 
-            pSummoner->SetVisibility(VISIBILITY_ON);
+            pSummoner->SetVisible(VISIBILITY_ON);
 
             // TODO: do composition at random. # of spawn also depends on uiWaveCount
             // As of now, it is just one of each.

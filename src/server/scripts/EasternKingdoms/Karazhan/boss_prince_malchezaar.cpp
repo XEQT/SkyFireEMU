@@ -274,7 +274,7 @@ public:
                 if (Unit *pInfernal = Unit::GetUnit(*me, *itr))
                     if (pInfernal->isAlive())
                     {
-                        pInfernal->SetVisibility(VISIBILITY_OFF);
+                        pInfernal->SetVisible(VISIBILITY_OFF);
                         pInfernal->setDeathState(JUST_DIED);
                     }
 

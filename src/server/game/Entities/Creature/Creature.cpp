@@ -211,7 +211,7 @@ void Creature::RemoveFromWorld()
 void Creature::DisappearAndDie()
 {
     DestroyForNearbyPlayers();
-    //SetVisibility(VISIBILITY_OFF);
+    //SetVisible(VISIBILITY_OFF);
     //ObjectAccessor::UpdateObjectVisibility(this);
     if (isAlive())
         setDeathState(JUST_DIED);
@@ -805,6 +805,9 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
         }
         LastUsedScriptID = GetCreatureInfo()->ScriptID;
     }
+
+	if (Entry == VISUAL_WAYPOINT)
+		SetVisible(false);
 
     return bResult;
 }

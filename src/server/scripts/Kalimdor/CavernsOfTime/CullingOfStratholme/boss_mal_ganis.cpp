@@ -221,7 +221,7 @@ public:
                                 uiOutroTimer = 500;
                                 break;
                             case 5:
-                                me->SetVisibility(VISIBILITY_OFF);
+                                me->SetVisible(VISIBILITY_OFF);
                                 me->Kill(me);
                                 break;
 

@@ -306,7 +306,7 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(VISIBILITY_OFF);
         }
 
         Creature* GetIck()
@@ -341,7 +341,7 @@ public:
                         pIck->GetNearPosition(pos, 5.0f, 3.14f);
                         me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0.0f);
                     }
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(VISIBILITY_ON);
 
                     Creature* pJainaOrSylvanas = me->GetCreature(*me, pInstance->GetData64(DATA_JAINA_SYLVANAS_1));
                     if (pJainaOrSylvanas) {

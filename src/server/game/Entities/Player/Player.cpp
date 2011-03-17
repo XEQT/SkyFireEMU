@@ -2634,11 +2634,11 @@ void Player::SetGMVisible(bool on)
 
         // Reapply stealth/invisibility if active or show if not any
         if (HasAuraType(SPELL_AURA_MOD_STEALTH))
-            SetVisibility(VISIBILITY_GROUP_STEALTH);
+            SetVisible(VISIBILITY_GROUP_STEALTH);
         //else if (HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
-        //    SetVisibility(VISIBILITY_GROUP_INVISIBILITY);
+        //    SetVisible(VISIBILITY_GROUP_INVISIBILITY);
         else
-            SetVisibility(VISIBILITY_ON);
+            SetVisible(VISIBILITY_ON);
     }
     else
     {
@@ -2647,7 +2647,7 @@ void Player::SetGMVisible(bool on)
         SetAcceptWhispers(false);
         SetGameMaster(true);
 
-        SetVisibility(VISIBILITY_OFF);
+        SetVisible(VISIBILITY_OFF);
     }
 }
 
@@ -21087,7 +21087,7 @@ bool Player::IsVisibleGloballyFor(Player* u) const
         return true;
 
     // Visible units, always are visible for all players
-    if (GetVisibility() == VISIBILITY_ON)
+    if (IsVisible())
         return true;
 
     // GMs are visible for higher gms (or players are visible for gms)
@@ -21095,7 +21095,7 @@ bool Player::IsVisibleGloballyFor(Player* u) const
         return GetSession()->GetSecurity() <= u->GetSession()->GetSecurity();
 
     // non faction visibility non-breakable for non-GMs
-    if (GetVisibility() == VISIBILITY_OFF)
+    if (IsVisible())
         return false;
 
     // non-gm stealth/invisibility not hide from global player lists

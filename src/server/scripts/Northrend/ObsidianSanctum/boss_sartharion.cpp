@@ -1400,7 +1400,7 @@ public:
         {
             if(uiDespawnTimer < uiDiff)
             {
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(VISIBILITY_OFF);
                 me->Kill(me);
                 uiDespawnTimer = 28000;
                 return;
@@ -1496,7 +1496,7 @@ public:
         {
             if(uiDespawnTimer < uiDiff)
             {
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(VISIBILITY_OFF);
                 me->Kill(me);
                 uiDespawnTimer = 28000;
                 return;

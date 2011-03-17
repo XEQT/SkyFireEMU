@@ -262,7 +262,7 @@ public:
             IsBanished = true;
             HasKilledAkama = false;
 
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(VISIBILITY_ON);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             //me->GetMotionMaster()->Clear();

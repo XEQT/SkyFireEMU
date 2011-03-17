@@ -83,7 +83,7 @@ public:
                 pCreatureTarget->CastSpell(pCreatureTarget, SPELL_SUMMON_SPARK, true);
 
             pCreatureTarget->AttackStop();
-            pCreatureTarget->SetVisibility(VISIBILITY_OFF);
+            pCreatureTarget->SetVisible(VISIBILITY_OFF);
             pCreatureTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
             pCreatureTarget->GetMotionMaster()->Clear();
@@ -138,7 +138,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
             if (me->GetVisibility() == VISIBILITY_OFF)
-                me->SetVisibility(VISIBILITY_ON);
+                me->SetVisible(VISIBILITY_ON);
 
             if (pInstance)
                 pInstance->SetData(TYPE_IONAR, NOT_STARTED);
@@ -245,7 +245,7 @@ public:
                     // Lightning effect and restore Ionar
                     else if (lSparkList.empty())
                     {
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(VISIBILITY_ON);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
                         DoCast(me, SPELL_SPARK_DESPAWN, false);

@@ -574,7 +574,7 @@ public:
                         Phase = 2;
                         break;
                     case 2:
-                        me->SetVisibility(VISIBILITY_OFF);
+                        me->SetVisible(VISIBILITY_OFF);
                         PhaseTimer = 2000;
                         Phase = 3;
                         break;

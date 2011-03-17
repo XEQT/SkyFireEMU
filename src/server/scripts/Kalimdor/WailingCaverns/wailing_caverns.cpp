@@ -380,8 +380,8 @@ public:
                             if (eventProgress == 11)
                             {
                                 if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
-                                    naralex->SetVisibility(VISIBILITY_OFF);
-                                me->SetVisibility(VISIBILITY_OFF);
+                                    naralex->SetVisible(VISIBILITY_OFF);
+                                me->SetVisible(VISIBILITY_OFF);
                                 pInstance->SetData(TYPE_NARALEX_PART3, DONE);
                             }
                         break;

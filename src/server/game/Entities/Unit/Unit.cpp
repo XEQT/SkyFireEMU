@@ -12013,7 +12013,7 @@ bool Unit::canDetectStealthOf(Unit const* target, float distance) const
     return distance < visibleDistance;
 }
 
-void Unit::SetVisibility(UnitVisibility x)
+void Unit::SetVisible(UnitVisibility x)
 {
     m_Visibility = x;
 
@@ -14556,13 +14556,13 @@ void Unit::SetContestedPvP(Player *attackedPlayer)
         player->addUnitState(UNIT_STAT_ATTACK_PLAYER);
         player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
         // call MoveInLineOfSight for nearby contested guards
-        player->SetVisibility(player->GetVisibility());
+        player->SetVisible(player->GetVisibility());
     }
     if (!hasUnitState(UNIT_STAT_ATTACK_PLAYER))
     {
         addUnitState(UNIT_STAT_ATTACK_PLAYER);
         // call MoveInLineOfSight for nearby contested guards
-        SetVisibility(GetVisibility());
+        SetVisible(GetVisibility());
     }
 }
 

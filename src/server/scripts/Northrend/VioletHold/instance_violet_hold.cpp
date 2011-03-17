@@ -705,7 +705,7 @@ public:
 
                 if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                 {
-                    pSinclari->SetVisibility(VISIBILITY_ON);
+                    pSinclari->SetVisible(VISIBILITY_ON);
 
                     std::list<Creature*> GuardList;
                     pSinclari->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
@@ -715,7 +715,7 @@ public:
                         {
                             if (Creature* pGuard = *itr)
                             {
-                                pGuard->SetVisibility(VISIBILITY_ON);
+                                pGuard->SetVisible(VISIBILITY_ON);
                                 pGuard->SetReactState(REACT_AGGRESSIVE);
                                 pGuard->GetMotionMaster()->MovePoint(1,pGuard->GetHomePosition());
                             }

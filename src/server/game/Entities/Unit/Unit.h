@@ -1828,7 +1828,7 @@ class Unit : public WorldObject
 
         // Visibility system
         UnitVisibility GetVisibility() const { return m_Visibility; }
-        void SetVisibility(UnitVisibility x);
+        void SetVisible(UnitVisibility x);
 
         // common function for visibility checks for player/creatures with detection code
         virtual bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList = false, bool is3dDistance = true) const = 0;
