@@ -34,6 +34,7 @@
 #include "SpellAuras.h"
 #include "CreatureAI.h"
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets & targets)
 {
@@ -299,6 +300,8 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
 
     if (sScriptMgr.OnGossipHello(_player, obj))
         return;
+
+	obj->AI()->GossipHello(_player);
 
     obj->Use(_player);
 }

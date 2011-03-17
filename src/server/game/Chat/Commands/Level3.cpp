@@ -62,6 +62,7 @@
 #include "WeatherMgr.h"
 #include "ScriptMgr.h"
 #include "LFGMgr.h"
+#include "SmartAI.h"
 
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
@@ -1170,6 +1171,14 @@ bool ChatHandler::HandleReloadConditions(const char* /*args*/)
     sConditionMgr.LoadConditions(true);
     SendGlobalGMSysMessage("Conditions reloaded.");
     return true;
+}
+
+bool ChatHandler::HandleReloadSmartAI(const char* /*args*/)
+{
+	sLog.outString("Re-Loading SmartAI Scripts...");
+	sSmartScriptMgr.LoadSmartAIFromDB();
+	SendGlobalGMSysMessage("SmartAI Scripts reloaded.");
+	return true;
 }
 
 bool ChatHandler::HandleAccountSetGmLevelCommand(const char *args)

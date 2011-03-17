@@ -46,6 +46,10 @@ void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
 void AddSC_example_spell_scripts();
 
+// Smart Scripts
+void AddSC_SmartSCripts();
+
+
 #ifdef SCRIPTS
 //world
 void AddSC_areatrigger_scripts();
@@ -593,6 +597,7 @@ void AddSpellScripts()
     AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
     AddSC_example_spell_scripts();
+	AddSC_SmartSCripts();
 }
 
 void AddWorldScripts()

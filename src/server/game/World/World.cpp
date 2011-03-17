@@ -74,6 +74,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "ScriptMgr.h"
 #include "WeatherMgr.h"
+#include "SmartAI.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1589,6 +1590,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Waypoints...");
     sWaypointMgr->Load();
 
+	sLog.outString("Loading SmartAI Waypoints...");
+	sSmartWaypointMgr.LoadFromDB();
+
     sLog.outString("Loading Creature Formations...");
     formation_mgr.LoadCreatureFormations();
 
@@ -1622,6 +1626,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Autobroadcasts...");
     LoadAutobroadcasts();
+
+	sLog.outString("Loading SmartAI scripts...");
+	sSmartScriptMgr.LoadSmartAIFromDB();
 
     ///- Load and initialize scripts
     sLog.outString("Loading Scripts...");
