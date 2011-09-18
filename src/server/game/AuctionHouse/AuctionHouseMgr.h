@@ -62,7 +62,7 @@ struct AuctionEntry
     uint64 owner;
     uint64 startbid;                                        //maybe useless
     uint64 bid;
-    uint32 buyout;
+    uint64 buyout;
     time_t expire_time;
     uint64 bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
