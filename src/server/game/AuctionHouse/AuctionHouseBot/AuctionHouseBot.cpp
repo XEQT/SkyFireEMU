@@ -782,7 +782,7 @@ void AuctionHouseBot::Update()
     // Add New Bids
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
-        addNewAuctions(_AHBplayer->GetSession()->GetPlayer(), &AllianceConfig);
+        addNewAuctions(_AHBplayer, &AllianceConfig);
         if (((_newrun - _lastrun_a) >= (AllianceConfig.GetBiddingInterval() * MINUTE)) && (AllianceConfig.GetBidsPerInterval() > 0))
         {
             //if (debug_Out) sLog->outString("AHBuyer: %u seconds have passed since last bid", (_newrun - _lastrun_a));
