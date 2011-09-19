@@ -753,7 +753,7 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(3, owner);
     stmt->setUInt64(4, buyout);
     stmt->setUInt64(5, uint64(expire_time));
-    stmt->setUInt32(6, bidder);
+    stmt->setUInt64(6, bidder);
     stmt->setUInt64(7, bid);
     stmt->setUInt64(8, startbid);
     stmt->setUInt64(9, deposit);
