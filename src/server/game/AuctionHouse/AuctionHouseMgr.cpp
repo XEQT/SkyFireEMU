@@ -750,12 +750,12 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(0, Id);
     stmt->setUInt32(1, auctioneer);
     stmt->setUInt32(2, item_guidlow);
-    stmt->setUInt64(3, owner);
-    stmt->setUInt64(4, buyout);
+    stmt->setUInt32(3, owner);
+    stmt->setUInt32(4, buyout);
     stmt->setUInt64(5, uint64(expire_time));
-    stmt->setUInt64(6, bidder);
-    stmt->setUInt64(7, bid);
-    stmt->setUInt64(8, startbid);
+    stmt->setUInt32(6, bidder);
+    stmt->setUInt32(7, bid);
+    stmt->setUInt32(8, startbid);
     stmt->setUInt32(9, deposit);
     trans->Append(stmt);
 }
@@ -768,8 +768,8 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     item_template = fields[3].GetUInt32();
     owner = fields[4].GetUInt32();
     buyout = fields[5].GetUInt32();
-    expire_time = fields[6].GetUInt32();
-    bidder = fields[7].GetUInt32();
+    expire_time = fields[6].GetUInt64();
+    bidder = fields[7].GetUInt64();
     bid = fields[8].GetUInt32();
     startbid = fields[9].GetUInt32();
     deposit = fields[10].GetUInt32();
