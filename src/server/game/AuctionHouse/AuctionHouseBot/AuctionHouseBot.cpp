@@ -432,27 +432,27 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
             if ((prototype->Quality >= 0) && (prototype->Quality <= AHB_MAX_QUALITY))
             {
-	        if(!glyphMode)
-		{
-		    if (config->GetMaxStack(prototype->Quality) > 1 && item->GetMaxStackCount() > 1)
-		        stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(prototype->Quality)));
-		    else if (config->GetMaxStack(prototype->Quality) == 0 && item->GetMaxStackCount() > 1)
-			stackCount = urand(1, item->GetMaxStackCount());
-		    else
-			stackCount = 1;
-			buyoutPrice *= urand(config->GetMinPrice(prototype->Quality), config->GetMaxPrice(prototype->Quality));
-			buyoutPrice /= 100;
-			bidPrice = buyoutPrice * urand(config->GetMinBidPrice(prototype->Quality), config->GetMaxBidPrice(prototype->Quality));
-			bidPrice /= 100;
-		}
-		else
-		{
-		    buyoutPrice = urand(GlyphBuyOutPriceMin, GlyphBuyOutPriceMax);
-		    bidPrice = urand(GlyphBidPriceMin, GlyphBidPriceMax);
-		    if(buyoutPrice<bidPrice)
- 		        bidPrice = buyoutPrice - 1;
-		    stackCount = 1;
-		}
+	            if(!glyphMode)
+		        {
+		            if (config->GetMaxStack(prototype->Quality) > 1 && item->GetMaxStackCount() > 1)
+		                stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(prototype->Quality)));
+    		        else if (config->GetMaxStack(prototype->Quality) == 0 && item->GetMaxStackCount() > 1)
+	    		        stackCount = urand(1, item->GetMaxStackCount());
+		            else
+			            stackCount = 1;
+			        buyoutPrice *= urand(config->GetMinPrice(prototype->Quality), config->GetMaxPrice(prototype->Quality));
+			        buyoutPrice /= 100;
+			        bidPrice = buyoutPrice * urand(config->GetMinBidPrice(prototype->Quality), config->GetMaxBidPrice(prototype->Quality));
+			        bidPrice /= 100;
+		        }
+		        else
+		        {
+		            buyoutPrice = urand(GlyphBuyOutPriceMin, GlyphBuyOutPriceMax);
+	    	        bidPrice = urand(GlyphBidPriceMin, GlyphBidPriceMax);
+		            if(buyoutPrice<bidPrice)
+ 	    	            bidPrice = buyoutPrice - 1;
+    		         stackCount = 1;
+		        }
             }
             else
             {
@@ -481,7 +481,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
             item->SetCount(stackCount);
 
             uint32 dep =  sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
-
+            if (debug_Out) sLog->outError("Lets see what the bill lands on [%u]", buyoutPrice * stackCount);
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
             AuctionEntry* auctionEntry = new AuctionEntry;
             auctionEntry->Id = sObjectMgr->GenerateAuctionID();
