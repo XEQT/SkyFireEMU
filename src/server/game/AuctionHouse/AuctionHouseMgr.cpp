@@ -754,9 +754,9 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt64(4, buyout);
     stmt->setUInt64(5, uint64(expire_time));
     stmt->setUInt32(6, bidder);
-    stmt->setInt32 (7, int32(bid));
-    stmt->setInt32 (8, int32(startbid));
-    stmt->setInt32 (9, int32(deposit));
+    stmt->setUInt64(7, bid);
+    stmt->setUInt64(8, startbid);
+    stmt->setUInt64(9, deposit);
     trans->Append(stmt);
 }
 
