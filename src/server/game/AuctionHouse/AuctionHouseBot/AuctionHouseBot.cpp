@@ -792,8 +792,6 @@ void AuctionHouseBot::Update()
     // Add New Bids
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) || AHBSide_Override_Side == true)
     {
-        sLog->outString("Adding more auctions for Horde and Allians");
-        sLog->outString("AllianceConfig [%u]", AllianceConfig.GetAHFID());
         addNewAuctions(_AHBplayer, &AllianceConfig);
         if (((_newrun - _lastrun_a) >= (AllianceConfig.GetBiddingInterval() * MINUTE)) && (AllianceConfig.GetBidsPerInterval() > 0))
         {
