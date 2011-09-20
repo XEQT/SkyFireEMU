@@ -1156,7 +1156,7 @@ private:
     bool AHBBuyer;
     bool BuyMethod;
     bool SellMethod;
-
+    bool AHBSide_Override_Side;
     uint32 AHBplayerAccount;
     uint32 AHBplayerGUID;
     uint32 ItemsPerCycle;
@@ -1243,6 +1243,7 @@ private:
 
 public:
     ~AuctionHouseBot();
+    bool GetAHBSide_Override_Side() { return AHBSide_Override_Side; };
     void Update();
     void Initialize();
     void LoadValues(AHBConfig*);

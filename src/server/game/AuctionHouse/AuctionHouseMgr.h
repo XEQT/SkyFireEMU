@@ -59,7 +59,7 @@ struct AuctionEntry
     uint32 auctioneer;                                      // creature low guid
     uint32 item_guidlow;
     uint32 item_template;
-    uint64 owner;
+    uint32 owner;
     uint32 startbid;                                        //maybe useless
     uint32 bid;
     uint32 buyout;

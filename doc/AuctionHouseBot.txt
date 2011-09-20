@@ -37,6 +37,15 @@ AuctionHouseBot.Account is the account number (in realmd->account table) of the 
 AuctionHouseBot.GUID is the GUID (in characters->characters table) of the player you want to run as the auction bot. Note: a value of 0 will disable the bot.
 AuctionHouseBot.ItemsPerCycle determines how many items are added each time AHBot is run (once per minute, by default)
 
+###########################################################################
+# New Option. This is for overriding side check for auctions.
+# Normaly if you can team up with horde and ally, the AuctionHouse
+# put the Auction tied togehter so there is no Ally, Horde, Neutral
+# auctions. With this parameter you get past that.
+# 1 = override, 0 = standard
+###########################################################################
+AuctionHouseBot.OverrideSide = 1
+
 #These are the Filters For filtering certain items/trade goods from the AH
 AuctionHouseBot.VendorItems = 0
 AuctionHouseBot.VendorTradeGoods = 0

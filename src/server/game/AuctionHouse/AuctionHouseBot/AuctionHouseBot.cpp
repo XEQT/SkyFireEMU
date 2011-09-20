@@ -141,6 +141,8 @@ AuctionHouseBot::~AuctionHouseBot()
 void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 {
     bool glyphMode = false;
+    if (debug_Out) sLog->outString("AHSeller: Minimum Items %u", config->GetMinItems());
+    if (debug_Out) sLog->outString("AHSeller: Maximum Items %u", config->GetMaxItems());
 
     if (!AHBSeller)
     {
@@ -153,23 +155,27 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
     if (maxItems == 0)
     {
-        //if (debug_Out) sLog->outString("AHSeller: Auctions disabled");
+        if (debug_Out) sLog->outString("AHSeller: Auctions disabled");
         return;
     }
 
     AuctionHouseEntry const* ahEntry =  sAuctionMgr->GetAuctionHouseEntry(config->GetAHFID());
     if (!ahEntry)
     {
+        if (debug_Out) sLog->outString("AHSeller: GetAuctionEntry error [%u]", config->GetAHFID());
         return;
     }
     AuctionHouseObject* auctionHouse =  sAuctionMgr->GetAuctionsMap(config->GetAHFID());
     if (!auctionHouse)
     {
+        if (debug_Out) sLog->outString("AHSeller: GetAuctionsMap error [%u]", config->GetAHFID());
         return;
     }
 
     uint32 auctions = auctionHouse->Getcount();
 
+    if (debug_Out) sLog->outString("AHSeller: Numbers of auctions [%u]", auctionHouse->Getcount());
+    
     uint32 items = 0;
 
     if(SellGlyphs)
@@ -180,8 +186,10 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
             glyphMode = true;
 
 	if(auctions >= (maxItems + GlyphsCount))
-	    return;
-
+	{ 
+        if (debug_Out) sLog->outString("AHSeller: Numbers of auctions is at MAX", (maxItems + GlyphsCount));
+        return;
+    }
 	if (((maxItems + GlyphsCount) - auctions) >= ItemsPerCycle)
 	    items = ItemsPerCycle;
 	else
@@ -191,12 +199,12 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     {
 	if (auctions >= minItems)
 	{
-	    //if (debug_Out) sLog->outString("AHSeller: Auctions above minimum");
+	    if (debug_Out) sLog->outString("AHSeller: Auctions above minimum");
 	    return;
 	}
 	if (auctions >= maxItems)
 	{
- 	    //if (debug_Out) sLog->outString("AHSeller: Auctions at or above maximum");
+ 	    if (debug_Out) sLog->outString("AHSeller: Auctions at or above maximum");
 	    return;
 	}
 	if ((maxItems - auctions) >= ItemsPerCycle)
@@ -209,6 +217,8 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
     uint32 AuctioneerGUID = 0;
 
+    if (debug_Out) sLog->outError("config->GetAHID() [%u]", config->GetAHID());
+    
     switch (config->GetAHID())
     {
     case 2:
@@ -267,7 +277,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     // only insert a few at a time, so as not to peg the processor
     for (uint32 cnt = 1; cnt <= items; cnt++)
     {
-    if (debug_Out) sLog->outString("AHSeller: %u count", cnt);
+        if (debug_Out) sLog->outString("AHSeller: %u count", cnt);
         uint32 itemID = 0;
         uint32 itemColor = 99;
         uint32 loopbreaker = 0;
@@ -780,8 +790,10 @@ void AuctionHouseBot::Update()
     sObjectAccessor->AddObject(_AHBplayer); 
     
     // Add New Bids
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) || AHBSide_Override_Side == true)
     {
+        sLog->outString("Adding more auctions for Horde and Allians");
+        sLog->outString("AllianceConfig [%u]", AllianceConfig.GetAHFID());
         addNewAuctions(_AHBplayer, &AllianceConfig);
         if (((_newrun - _lastrun_a) >= (AllianceConfig.GetBiddingInterval() * MINUTE)) && (AllianceConfig.GetBidsPerInterval() > 0))
         {
@@ -809,7 +821,11 @@ void AuctionHouseBot::Update()
         addNewAuctionBuyerBotBid(_AHBplayer, &NeutralConfig, &_session);
         _lastrun_n = _newrun;
     }
+    _AHBplayer->RemoveFromWorld();
     sObjectAccessor->RemoveObject(_AHBplayer);
+    _AHBplayer->~Player();
+    free(_AHBplayer);
+    // sWorld->DecreasePlayerCount();
 }
 
 void AuctionHouseBot::Initialize()
@@ -821,7 +837,7 @@ void AuctionHouseBot::Initialize()
     AHBBuyer = sConfig->GetBoolDefault("AuctionHouseBot.EnableBuyer", false);
     SellMethod = sConfig->GetBoolDefault("AuctionHouseBot.UseBuyPriceForSeller", false);
     BuyMethod = sConfig->GetBoolDefault("AuctionHouseBot.UseBuyPriceForBuyer", false);
-
+    AHBSide_Override_Side = sConfig->GetBoolDefault("AuctionHouseBot.OverrideSide", false);
     AHBplayerAccount = sConfig->GetIntDefault("AuctionHouseBot.Account", 0);
     AHBplayerGUID = sConfig->GetIntDefault("AuctionHouseBot.GUID", 0);
     ItemsPerCycle = sConfig->GetIntDefault("AuctionHouseBot.ItemsPerCycle", 200);
@@ -890,10 +906,14 @@ void AuctionHouseBot::Initialize()
     GlyphBidPriceMax = sConfig->GetIntDefault("AuctionHouseBot.GlyphBidPriceMax", 0);
 
     //End Filters
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) || AHBSide_Override_Side == true)
     {
+        if(AHBSide_Override_Side == true)
+                sLog->outString("Overriding is used");
         LoadValues(&AllianceConfig);
         LoadValues(&HordeConfig);
+        sLog->outString("Alliance [%u]", AllianceConfig.GetAHID());
+        sLog->outString("Horde [%u]", HordeConfig.GetAHID());
     }
     LoadValues(&NeutralConfig);
 
