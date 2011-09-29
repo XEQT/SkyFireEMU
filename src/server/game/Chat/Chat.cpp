@@ -39,6 +39,7 @@
 #include "UpdateMask.h"
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
+#include "AuctionHouseBot\AuctionHouseBot.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
@@ -447,6 +448,42 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                                "", NULL }
     };
 
+    static ChatCommand ahbotItemsAmountCommandTable[] =
+    {
+        { "grey",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREY>>,  "", NULL },
+        { "white",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_WHITE>>, "", NULL },
+        { "green",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREEN>>, "", NULL },
+        { "blue",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_BLUE>>,  "", NULL },
+        { "purple",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_PURPLE>>,"", NULL },
+        { "orange",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_ORANGE>>,"", NULL },
+        { "yellow",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_YELLOW>>,"", NULL },
+        { NULL,             0,                  true,  NULL,                                             "", NULL }
+    };
+
+    static ChatCommand ahbotItemsRatioCommandTable[] =
+    {
+        { "alliance",       SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_ALLIANCE>>,  "", NULL },
+        { "horde",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_HORDE>>,     "", NULL },
+        { "neutral",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_NEUTRAL>>,   "", NULL },
+        { NULL,             0,                  true,  NULL,                                             "", NULL }
+    };
+
+    static ChatCommand ahbotItemsCommandTable[] =
+    {
+        { "amount",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", ahbotItemsAmountCommandTable},
+        { "ratio",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", ahbotItemsRatioCommandTable},
+        { NULL,             0,                  true,  NULL,                                           "", NULL }
+    };
+
+    static ChatCommand ahbotCommandTable[] =
+    {
+        { "items",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", ahbotItemsCommandTable},
+        { "rebuild",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotRebuildCommand>,        "", NULL },
+        { "reload",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotReloadCommand>,         "", NULL },
+        { "status",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleAHBotStatusCommand>,         "", NULL },
+        { NULL,             0,                  true,  NULL,                                           "", NULL }
+    };
+
     static ChatCommand commandTable[] =
     {
         { "gm",             SEC_MODERATOR,      true,  NULL,                                           "", gmCommandTable       },
@@ -470,8 +507,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "pet",            SEC_GAMEMASTER,     false, NULL,                                           "", petCommandTable },
         { "ticket",         SEC_MODERATOR,      false,  NULL,                                          "", ticketCommandTable },
         { "opcode",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleOpcodeTestCommand>,          "", NULL },
-        { "ahbotoptions",   SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleAHBotOptionsCommand>,        "", NULL },
-		
+        // { "ahbotoptions",   SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleAHBotOptionsCommand>,        "", NULL },
+		{ "ahbot",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", ahbotCommandTable    },
         { "aura",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleAuraCommand>,                "", NULL },
         { "unaura",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleUnAuraCommand>,              "", NULL },
         { "nameannounce",   SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleNameAnnounceCommand>,        "", NULL },

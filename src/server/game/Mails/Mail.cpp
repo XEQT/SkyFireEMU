@@ -184,12 +184,12 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
     uint32 mailId = sObjectMgr->GenerateMailID();
 
-    if (receiver.GetPlayerGUIDLow() == auctionbot.GetAHBplayerGUID())
+    if (receiver.GetPlayerGUIDLow() == NULL)
     {
         if (sender.GetMailMessageType() == MAIL_AUCTION)        // auction mail with items
             deleteIncludedItems(trans, true);
         return;
-    }
+    } 
 
     time_t deliver_time = time(NULL) + deliver_delay;
 

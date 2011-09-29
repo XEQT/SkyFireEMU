@@ -32,10 +32,10 @@ class ACE_Configuration_Heap;
 class Config
 {
     friend class ACE_Singleton<Config, ACE_Null_Mutex>;
-    Config();
+    // Config();
     public:
         ~Config();
-
+        Config();
         bool SetSource(const char *file);
         bool Reload();
 

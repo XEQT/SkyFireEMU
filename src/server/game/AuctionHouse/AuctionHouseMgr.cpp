@@ -56,7 +56,7 @@ AuctionHouseMgr::~AuctionHouseMgr()
 
 AuctionHouseObject * AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
 {
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) && auctionbot.GetAHBSide_Override_Side() == false)
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) && sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_OVERRIDE_SIDE) == false)
         return &mNeutralAuctions;
 
     // team have linked auction houses
@@ -224,7 +224,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTrans
         uint64 profit = auction->bid + auction->deposit - auctionCut;
 
         //FIXME: what do if owner offline
-        if (owner && owner->GetGUIDLow() != auctionbot.GetAHBplayerGUID())
+        if (owner)
         {
             owner->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
             owner->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
@@ -254,7 +254,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry * auction, SQLTransact
         std::ostringstream subject;
         subject << auction->item_template << ":0:" << AUCTION_EXPIRED << ":0:0";
 
-        if (owner && owner->GetGUIDLow() != auctionbot.GetAHBplayerGUID())
+        if (owner)
             owner->GetSession()->SendAuctionOwnerNotification(auction);
 
         MailDraft(subject.str(), "")                        // TODO: fix body
@@ -297,7 +297,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry *auction, uint64 new
         msgAuctionOutbiddedSubject << auction->item_template << ":0:" << AUCTION_OUTBIDDED << ":0:0";
 
         if (oldBidder && !newBidder)
-            oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, auctionbot.GetAHBplayerGUID(), newPrice, auction->GetAuctionOutBid(), auction->item_template);
+            oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, oldBidder->GetGUID(), newPrice, auction->GetAuctionOutBid(), auction->item_template);
 
         if (oldBidder && newBidder)
             oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, newBidder->GetGUID(), newPrice, auction->GetAuctionOutBid(), auction->item_template);
@@ -444,7 +444,7 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
 {
     uint32 houseid = 7; // goblin auction house
 
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) || auctionbot.GetAHBSide_Override_Side() == true)
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) || sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_OVERRIDE_SIDE) == true)
     {
         //FIXME: found way for proper auctionhouse selection by another way
         // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
@@ -486,12 +486,12 @@ void AuctionHouseObject::AddAuction(AuctionEntry *auction)
 
     AuctionsMap[auction->Id] = auction;
     sScriptMgr->OnAuctionAdd(this, auction);
-    auctionbot.IncrementItemCounts(auction);
+   // auctionbot.IncrementItemCounts(auction);
 }
 
 bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_template)
 {
-    auctionbot.DecrementItemCounts(auction, item_template);    
+    // auctionbot.DecrementItemCounts(auction, item_template);    
 	bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
 
     sScriptMgr->OnAuctionRemove(this, auction);
@@ -805,4 +805,109 @@ bool AuctionEntry::LoadFromDB(Field* fields)
         return false;
     }
     return true;
+}
+
+bool AuctionEntry::UpdateBid(uint32 newbid, Player* newbidder /*=NULL*/)
+{
+    return false;
+    /*    Player* auction_owner = owner ? sObjectMgr->GetPlayer(ObjectGuid(HIGHGUID_PLAYER, owner)) : NULL;
+
+    // bid can't be greater buyout
+    if (buyout && newbid > buyout)
+        newbid = buyout;
+
+    if (newbidder && newbidder->GetGUIDLow() == bidder)
+    {
+        newbidder->ModifyMoney(-int32(newbid - bid));
+    }
+    else
+    {
+        if (newbidder)
+            newbidder->ModifyMoney(-int32(newbid));
+
+        if (bidder)                                     // return money to old bidder if present
+            WorldSession::SendAuctionOutbiddedMail(this);
+    }
+
+    bidder = newbidder ? newbidder->GetGUIDLow() : 0;
+    bid = newbid;
+
+    if ((newbid < buyout) || (buyout == 0))                 // bid
+    {
+
+        if (auction_owner)
+            auction_owner->GetSession()->SendAuctionOwnerNotification(this);
+
+        // after this update we should save player's money ...
+        CharacterDatabase.BeginTransaction();
+        CharacterDatabase.PExecute("UPDATE auction SET buyguid = '%u', lastbid = '%u' WHERE id = '%u'", bidder, bid, Id);
+        if (newbidder)
+            newbidder->SaveInventoryAndGoldToDB();
+        CharacterDatabase.CommitTransaction();
+        return true;
+    }
+    else                                                    // buyout
+    {
+        AuctionBidWinning(newbidder);
+        return false;
+    } */
+    
+}
+
+AuctionEntry* AuctionHouseObject::AddAuction(AuctionHouseEntry const* auctionHouseEntry, Item* newItem, uint32 etime, uint32 bid, uint32 buyout, uint32 deposit, Player * pl /*= NULL*/)
+{
+    uint32 auction_time = uint32(etime * 1.0f); // sWorld->getFloatConfig(CONFIG_FLOAT_RATE_AUCTION_TIME));// getConfig(CONFIG_FLOAT_RATE_AUCTION_TIME));
+
+    AuctionEntry *AH = new AuctionEntry;
+    AH->Id = sObjectMgr->GenerateAuctionID();
+    AH->item_guidlow = newItem->GetGUIDLow(); //  GetObjectGuid().GetCounter();
+    AH->item_template = newItem->GetEntry();
+    // AH->itemcount = newItem->GetCount();
+    // AH->itemRandomPropertyId = newItem->GetItemRandomPropertyId();
+    AH->owner = pl ? pl->GetGUIDLow() : 0;
+
+    if (pl)
+        Utf8toWStr(pl->GetName(), AH-> ownerName);
+
+    AH->startbid = bid;
+    AH->bidder = 0;
+    AH->bid = 0;
+    AH->buyout = buyout;
+    AH->expire_time = time(NULL) + auction_time;
+    // AH->moneyDeliveryTime = 0;
+    AH->deposit = deposit;
+    AH->auctionHouseEntry = auctionHouseEntry;
+    // sLog->outString("Faction ID = [%u]", AH->auctionHouseEntry->houseId);
+    switch (AH->auctionHouseEntry->houseId)
+    {
+        case 1:
+            AH->auctioneer = 79707; //Human in stormwind.
+            break;
+        case 6:
+            AH->auctioneer = 4656; //orc in Orgrimmar
+            break;
+        case 7:
+            AH->auctioneer = 23442; //goblin in GZ
+            break;
+        default:
+            sLog->outError("AHSeller: GetAHID() - Default switch reached");
+            AH->auctioneer = 23442; //default to neutral 7
+            break;
+
+    }
+    // AH->auctioneer = 23442; // This is for AHBot
+    AddAuction(AH);
+
+    sAuctionMgr->AddAItem(newItem);
+
+    SQLTransaction result = CharacterDatabase.BeginTransaction();
+    newItem->SaveToDB(result);
+    AH->SaveToDB(result);
+
+    if (pl)
+        pl->SaveInventoryAndGoldToDB(result);
+   
+    CharacterDatabase.CommitTransaction(result);
+
+    return AH;
 }
