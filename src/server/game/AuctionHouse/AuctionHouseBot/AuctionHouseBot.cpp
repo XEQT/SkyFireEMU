@@ -1534,17 +1534,15 @@ bool AuctionBotSeller::getRandomArray( AHB_Seller_Config& config, RandomArray& r
                 ++working;
             }
         
-            if(m_ItemPool[j][i].empty()) 
-                ++missing;
-
         }
     }
+    /*
     if(sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_DEBUG_SELLER))
     {
         sLog->outString("OK\tLOST");
         sLog->outString("%u\t%u", working, missing);
        
-    }
+    }*/
     return Ok;
 }
 
@@ -1649,7 +1647,9 @@ void AuctionBotSeller::addNewAuctions(AHB_Seller_Config& config)
         case AUCTION_HOUSE_HORDE:    houseid =  6; break;
         default:                     houseid =  7; break;
     }
-    sLog->outString("GetHouseType -> [%u]", houseid);
+    if(sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_DEBUG_SELLER))
+        sLog->outString("GetHouseType -> [%u]", houseid);
+
     AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(houseid);
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
