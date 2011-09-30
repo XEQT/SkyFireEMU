@@ -860,7 +860,7 @@ AuctionEntry* AuctionHouseObject::AddAuction(AuctionHouseEntry const* auctionHou
 
     AuctionEntry *AH = new AuctionEntry;
     AH->Id = sObjectMgr->GenerateAuctionID();
-    AH->item_guidlow = newItem->GetGUIDLow(); //  GetObjectGuid().GetCounter();
+    AH->item_guidlow = newItem->GetGUIDLow();
     AH->item_template = newItem->GetEntry();
     // AH->itemcount = newItem->GetCount();
     // AH->itemRandomPropertyId = newItem->GetItemRandomPropertyId();
@@ -877,7 +877,7 @@ AuctionEntry* AuctionHouseObject::AddAuction(AuctionHouseEntry const* auctionHou
     // AH->moneyDeliveryTime = 0;
     AH->deposit = deposit;
     AH->auctionHouseEntry = auctionHouseEntry;
-    // sLog->outString("Faction ID = [%u]", AH->auctionHouseEntry->houseId);
+
     switch (AH->auctionHouseEntry->houseId)
     {
         case 1:
@@ -895,7 +895,7 @@ AuctionEntry* AuctionHouseObject::AddAuction(AuctionHouseEntry const* auctionHou
             break;
 
     }
-    // AH->auctioneer = 23442; // This is for AHBot
+
     AddAuction(AH);
 
     sAuctionMgr->AddAItem(newItem);
