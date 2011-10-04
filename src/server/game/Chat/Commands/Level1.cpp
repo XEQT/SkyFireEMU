@@ -490,8 +490,12 @@ bool ChatHandler::HandleSummonCommand(const char* args)
     std::string target_name;
     if (!extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
-
     Player* _player = m_session->GetPlayer();
+    if (target != _player && target)
+        sLog->outString("[%s]", target->GetName());
+    if (!target)
+        sLog->outString("Nope this isent right");
+
     if (target == _player || target_guid == _player->GetGUID())
     {
         PSendSysMessage(LANG_CANT_TELEPORT_SELF);
@@ -546,9 +550,10 @@ bool ChatHandler::HandleSummonCommand(const char* args)
                 target->UnbindInstance(pMap->GetInstanceId(), target->GetDungeonDifficulty(), true);
 
             // we are in instance, and can summon only player in our group with us as lead
-            if (!m_session->GetPlayer()->GetGroup() || !target->GetGroup() ||
+            if(!target->IsPlayerbot() &&
+                (!m_session->GetPlayer()->GetGroup() || !target->GetGroup() ||
                 (target->GetGroup()->GetLeaderGUID() != m_session->GetPlayer()->GetGUID()) ||
-                (m_session->GetPlayer()->GetGroup()->GetLeaderGUID() != m_session->GetPlayer()->GetGUID()))
+                (m_session->GetPlayer()->GetGroup()->GetLeaderGUID() != m_session->GetPlayer()->GetGUID())))
                 // the last check is a bit excessive, but let it be, just in case
             {
                 PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, nameLink.c_str());
@@ -595,6 +600,11 @@ bool ChatHandler::HandleSummonCommand(const char* args)
             m_session->GetPlayer()->GetOrientation(),
             m_session->GetPlayer()->GetZoneId(),
             target_guid);
+        
+       // float x, y, z;
+       // m_session->GetPlayer()->GetClosePoint(x, y, z, _player->GetObjectSize());
+       // _player->TeleportTo(m_session->GetPlayer()->GetMapId(), x, y, z, _player->GetOrientation());
+
     }
 
     return true;
@@ -2371,6 +2381,7 @@ bool ChatHandler::HandleGroupSummonCommand(const char* args)
         float x, y, z;
         m_session->GetPlayer()->GetClosePoint(x, y, z, pl->GetObjectSize());
         pl->TeleportTo(m_session->GetPlayer()->GetMapId(), x, y, z, pl->GetOrientation());
+        sLog->outString("GROUP::SummonGroup");
     }
 
     return true;

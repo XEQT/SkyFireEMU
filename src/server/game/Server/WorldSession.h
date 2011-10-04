@@ -179,6 +179,9 @@ public:
     virtual bool Process(WorldPacket* packet);
 };
 
+//Playerbot mod
+typedef UNORDERED_MAP<uint64, Player*> PlayerBotMap;
+
 /// Player session in the World
 class WorldSession
 {
@@ -186,6 +189,14 @@ class WorldSession
     public:
         WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter);
         ~WorldSession();
+
+        //Playerbot mod
+        void AddPlayerBot(uint64 guid);
+        void LogoutPlayerBot(uint64 guid, bool Save);
+        Player *GetPlayerBot (uint64 guid) const;
+ 		PlayerBotMap m_playerBots;
+        PlayerBotMap::const_iterator GetPlayerBotsBegin() const { return m_playerBots.begin(); }
+        PlayerBotMap::const_iterator GetPlayerBotsEnd()   const { return m_playerBots.end();   }
 
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
@@ -382,6 +393,7 @@ class WorldSession
 
         void HandleCharEnum(QueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
+		void HandlePlayerBotLogin(SQLQueryHolder * holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recv_data);
 
         // played time
@@ -884,7 +896,7 @@ class WorldSession
         QueryCallback<QueryResult, uint32> m_stableChangeSlotCallback;
         QueryCallback<QueryResult, uint64> m_sendStabledPetCallback;
         QueryResultHolderFuture m_charLoginCallback;
-
+        QueryResultHolderFuture _charBotLoginCallback;
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
