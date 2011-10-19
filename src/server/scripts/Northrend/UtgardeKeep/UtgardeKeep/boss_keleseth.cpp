@@ -1,25 +1,18 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://www.getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
- * Copyright (C) 2008-2011 Trinity <http://www.trinitycore.org/>
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * Copyright (C) 2006-2011 ScriptDev2 <http://www.scriptdev2.com/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * Copyright (C) 2010-2011 Project SkyFire <http://www.projectskyfire.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -72,14 +65,14 @@ class mob_frost_tomb : public CreatureScript
 public:
     mob_frost_tomb() : CreatureScript("mob_frost_tomb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frost_tombAI(pCreature);
+        return new mob_frost_tombAI(creature);
     }
 
     struct mob_frost_tombAI : public ScriptedAI
     {
-        mob_frost_tombAI(Creature *c) : ScriptedAI(c)
+        mob_frost_tombAI(Creature* c) : ScriptedAI(c)
         {
             FrostTombGUID = 0;
         }
@@ -96,7 +89,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void JustDied(Unit *killer)
+        void JustDied(Unit* killer)
         {
             if (killer->GetGUID() != me->GetGUID())
                 ShatterFrostTomb = true;
@@ -123,18 +116,16 @@ class boss_keleseth : public CreatureScript
 public:
     boss_keleseth() : CreatureScript("boss_keleseth") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kelesethAI (pCreature);
+        return new boss_kelesethAI (creature);
     }
 
     struct boss_kelesethAI : public ScriptedAI
     {
-        boss_kelesethAI(Creature *c) : ScriptedAI(c)
+        boss_kelesethAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
         InstanceScript* pInstance;
@@ -160,7 +151,7 @@ public:
                 pInstance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             if (victim == me)
                 return;
@@ -174,7 +165,7 @@ public:
 
             if (IsHeroic() && !ShatterFrostTomb)
             {
-                AchievementEntry const *AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
+                AchievementEntry const* AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
                 if (AchievOnTheRocks)
                 {
                     Map* pMap = me->GetMap();
@@ -213,9 +204,9 @@ public:
 
             if (ShadowboltTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
-                if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                    me->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
+                Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
+                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    me->CastSpell(target, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
                 ShadowboltTimer = 10000;
             } else ShadowboltTimer -= diff;
 
@@ -242,14 +233,14 @@ public:
 
             if (FrostTombTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    if (pTarget->isAlive())
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (target->isAlive())
                     {
-                        //DoCast(pTarget, SPELL_FROST_TOMB_SUMMON, true);
-                        if (Creature *pChains = me->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+                        //DoCast(target, SPELL_FROST_TOMB_SUMMON, true);
+                        if (Creature* pChains = me->SummonCreature(CREATURE_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
                         {
-                            CAST_AI(mob_frost_tomb::mob_frost_tombAI, pChains->AI())->SetPrisoner(pTarget);
-                            pChains->CastSpell(pTarget, SPELL_FROST_TOMB, true);
+                            CAST_AI(mob_frost_tomb::mob_frost_tombAI, pChains->AI())->SetPrisoner(target);
+                            pChains->CastSpell(target, SPELL_FROST_TOMB, true);
 
                             DoScriptText(SAY_FROST_TOMB, me);
                         }
@@ -267,19 +258,19 @@ class mob_vrykul_skeleton : public CreatureScript
 public:
     mob_vrykul_skeleton() : CreatureScript("mob_vrykul_skeleton") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_vrykul_skeletonAI (pCreature);
+        return new mob_vrykul_skeletonAI (creature);
     }
 
     struct mob_vrykul_skeletonAI : public ScriptedAI
     {
-        mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c)
+        mob_vrykul_skeletonAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         uint32 Respawn_Time;
         uint64 Target_Guid;
         uint32 Decrepify_Timer;
@@ -293,8 +284,8 @@ public:
             isDead = false;
         }
 
-        void EnterCombat(Unit * /*who*/){}
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void EnterCombat(Unit* /*who*/) {}
+        void DamageTaken(Unit* done_by, uint32 &damage)
         {
             if (done_by->GetGUID() == me->GetGUID())
                 return;

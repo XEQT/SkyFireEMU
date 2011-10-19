@@ -1172,6 +1172,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
         return;
     }
 
+
     for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin(); itr != mGameEventGameobjectGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
@@ -1185,7 +1186,6 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
             {
                 GameObject* pGameobject = new GameObject;
-                //sLog->outDebug("Spawning gameobject %u", *itr);
                 if (!pGameobject->LoadFromDB(*itr, map))
                     delete pGameobject;
                 else
@@ -1205,7 +1205,10 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     }
 
     for (IdList::iterator itr = mGameEventPoolIds[internal_event_id].begin(); itr != mGameEventPoolIds[internal_event_id].end(); ++itr)
+    {
         sPoolMgr->SpawnPool(*itr);
+
+    }
 }
 
 void GameEventMgr::GameEventUnspawn(int16 event_id)

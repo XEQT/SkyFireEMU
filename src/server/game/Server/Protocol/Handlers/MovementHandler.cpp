@@ -59,6 +59,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         return;
     }
 
+    sLog->outString("We have a location");
+
     // get the destination map entry, not the current one, this will fix homebind and reset greeting
     MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
     InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loc.GetMapId());
@@ -100,6 +102,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         GetPlayer()->ResetMap();
         GetPlayer()->SetMap(oldMap);
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
+        sLog->outString("Not good. We couldent go to this location");
         return;
     }
 
@@ -188,10 +191,13 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         GetPlayer()->UpdatePvP(false, false);
 
     // resummon pet
-    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
+    // if(!GetPlayer()->m_bot->GetIAmABot() && !mInstance)
+    if(!GetPlayer()->IsPlayerbot())
+        GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
+    sLog->outString("Finsihed teleporting");
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
@@ -240,8 +246,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     }
 
     // resummon pet
-    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-
+    // if(!GetPlayer()->IsPlayerbot())
+        GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
 }

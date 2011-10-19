@@ -1,25 +1,18 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://www.getmangos.com/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
- * Copyright (C) 2008-2011 Trinity <http://www.trinitycore.org/>
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * Copyright (C) 2006-2011 ScriptDev2 <http://www.scriptdev2.com/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * Copyright (C) 2010-2011 Project SkyFire <http://www.projectskyfire.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -83,18 +76,16 @@ class boss_ingvar_the_plunderer : public CreatureScript
 public:
     boss_ingvar_the_plunderer() : CreatureScript("boss_ingvar_the_plunderer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ingvar_the_plundererAI(pCreature);
+        return new boss_ingvar_the_plundererAI(creature);
     }
 
     struct boss_ingvar_the_plundererAI : public ScriptedAI
     {
-        boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c)
+        boss_ingvar_the_plundererAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
         InstanceScript* pInstance;
@@ -130,7 +121,7 @@ public:
                 pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
         }
 
-        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage >= me->GetHealth() && !bIsUndead)
             {
@@ -169,7 +160,7 @@ public:
             DoScriptText(YELL_AGGRO_2, me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(YELL_AGGRO_1, me);
 
@@ -185,7 +176,7 @@ public:
                 pInstance->SetData(DATA_INGVAR_EVENT, DONE);
         }
 
-        void KilledUnit(Unit * /*victim*/)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (bIsUndead)
                 DoScriptText(YELL_KILL_1, me);
@@ -251,10 +242,10 @@ public:
                     if (!me->HasUnitState(UNIT_STAT_CASTING))
                     {
                         // Spawn target for Axe
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
-                        if (pTarget)
+                        Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                        if (target)
                         {
-                            me->SummonCreature(ENTRY_THROW_TARGET, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
+                            me->SummonCreature(ENTRY_THROW_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
 
                             DoCast(me, SPELL_SHADOW_AXE_SUMMON);
                         }
@@ -297,14 +288,14 @@ class mob_annhylde_the_caller : public CreatureScript
 public:
     mob_annhylde_the_caller() : CreatureScript("mob_annhylde_the_caller") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_annhylde_the_callerAI (pCreature);
+        return new mob_annhylde_the_callerAI (creature);
     }
 
     struct mob_annhylde_the_callerAI : public ScriptedAI
     {
-        mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c)
+        mob_annhylde_the_callerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -361,7 +352,7 @@ public:
 
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
         {
             if (uiResurectTimer)
@@ -410,14 +401,14 @@ class mob_ingvar_throw_dummy : public CreatureScript
 public:
     mob_ingvar_throw_dummy() : CreatureScript("mob_ingvar_throw_dummy") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_ingvar_throw_dummyAI (pCreature);
+        return new mob_ingvar_throw_dummyAI (creature);
     }
 
     struct mob_ingvar_throw_dummyAI : public ScriptedAI
     {
-        mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
+        mob_ingvar_throw_dummyAI(Creature* c) : ScriptedAI(c)
         {
         }
 
@@ -425,19 +416,19 @@ public:
 
         void Reset()
         {
-            Unit *pTarget = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
-            if (pTarget)
+            Unit* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
+            if (target)
             {
                 DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
                 float x, y, z;
-                pTarget->GetPosition(x, y, z);
+                target->GetPosition(x, y, z);
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
             }
             uiDespawnTimer = 7000;
         }
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit * /*who*/) {}
+        void EnterCombat(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
         {
             if (uiDespawnTimer <= diff)

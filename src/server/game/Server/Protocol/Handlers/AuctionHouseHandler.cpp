@@ -27,6 +27,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -237,7 +238,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 
     AuctionEntry *AH = new AuctionEntry;
     AH->Id = sObjectMgr->GenerateAuctionID();
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+    sLog->outString("Is it true or false [%u]", sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_OVERRIDE_SIDE));
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION) && sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_OVERRIDE_SIDE) == false)
         AH->auctioneer = 23442;
     else
         AH->auctioneer = GUID_LOPART(auctioneer);

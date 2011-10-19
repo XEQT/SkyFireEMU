@@ -29,6 +29,8 @@
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
 
+#include "AuctionHouseBot/AuctionHouseBot.h"
+
 class Item;
 class Player;
 class WorldPacket;
@@ -57,12 +59,18 @@ struct AuctionEntry
     uint32 auctioneer;                                      // creature low guid
     uint32 item_guidlow;
     uint32 item_template;
-    uint64 owner;
-    uint64 startbid;                                        //maybe useless
-    uint64 bid;
+    uint32 owner;
+    uint32 startbid;                                        //maybe useless
+    uint32 bid;
     uint32 buyout;
+    
+    // Added for AHBot
+    // uint32 owner;                                           // player low guid, can be 0 for server generated auction
+    std::wstring ownerName;
+    // Lets test this
+
     time_t expire_time;
-    uint64 bidder;
+    uint32 bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
@@ -76,6 +84,9 @@ struct AuctionEntry
     void DeleteFromDB(SQLTransaction& trans) const;
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
+    // Need to bee fixed
+    bool UpdateBid(uint32 newbid, Player* newbidder = NULL);// true if normal bid, false if buyout, bidder==NULL for generated bid
+
 };
 
 //this class is used as auctionhouse instance
@@ -91,6 +102,15 @@ public:
     }
 
     typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
+    
+    // ####### Added for AHBot #######
+    typedef std::pair<AuctionEntryMap::const_iterator, AuctionEntryMap::const_iterator> AuctionEntryMapBounds;
+
+
+    AuctionEntryMapBounds GetAuctionsBounds() const {return AuctionEntryMapBounds(AuctionsMap.begin(), AuctionsMap.end()); }
+
+
+        // End Added 
 
     uint32 Getcount() { return AuctionsMap.size(); }
 
@@ -105,9 +125,18 @@ public:
 
     void AddAuction(AuctionEntry *auction);
 
+    AuctionEntry* AddAuction(AuctionHouseEntry const* auctionHouseEntry, Item* newItem, uint32 etime, uint32 bid, uint32 buyout = 0, uint32 deposit = 0, Player * pl = NULL);
+
+   /* void AddAuction_new(AuctionEntry *ah)
+    {
+        ASSERT( ah );
+        AuctionsMap[ah->Id] = ah;
+    }
+    */
     bool RemoveAuction(AuctionEntry *auction, uint32 item_template);
 
     void Update();
+
 
     void BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
     void BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
@@ -122,6 +151,7 @@ private:
     // storage for "next" auction item for next Update()
     AuctionEntryMap::const_iterator next;
 };
+
 
 class AuctionHouseMgr
 {

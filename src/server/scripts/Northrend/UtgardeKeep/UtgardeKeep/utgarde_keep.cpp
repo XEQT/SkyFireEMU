@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,14 +30,14 @@ class npc_dragonflayer_forge_master : public CreatureScript
 public:
     npc_dragonflayer_forge_master() : CreatureScript("npc_dragonflayer_forge_master") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dragonflayer_forge_masterAI(pCreature);
+        return new npc_dragonflayer_forge_masterAI(creature);
     }
 
     struct npc_dragonflayer_forge_masterAI : public ScriptedAI
     {
-        npc_dragonflayer_forge_masterAI(Creature *c) : ScriptedAI(c)
+        npc_dragonflayer_forge_masterAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             fm_Type = 0;
@@ -56,7 +56,7 @@ public:
         {
            if (pInstance)
             {
-                switch(fm_Type)
+                switch (fm_Type)
                 {
                 case 1:
                     pInstance->SetData(EVENT_FORGE_1, me->isAlive() ? NOT_STARTED : DONE);
@@ -71,12 +71,12 @@ public:
             }
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (fm_Type == 0) fm_Type = GetForgeMasterType();
             if (pInstance)
             {
-                switch(fm_Type)
+                switch (fm_Type)
                 {
                 case 1:
                     pInstance->SetData(EVENT_FORGE_1, DONE);
@@ -91,12 +91,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (fm_Type == 0) fm_Type = GetForgeMasterType();
             if (pInstance)
             {
-                switch(fm_Type)
+                switch (fm_Type)
                 {
                 case 1:
                     pInstance->SetData(EVENT_FORGE_1, IN_PROGRESS);

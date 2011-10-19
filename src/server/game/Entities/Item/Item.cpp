@@ -832,7 +832,7 @@ void Item::AddToUpdateQueueOf(Player *player)
 {
     if (IsInUpdateQueue())
         return;
-
+    
     ASSERT(player != NULL);
 
     if (player->GetGUID() != GetOwnerGUID())

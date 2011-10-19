@@ -384,17 +384,18 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             WorldSession *const pBotWorldSession = botPlayer->GetSession();
             if(botPlayer->IsBeingTeleportedFar())
             {
-              pBotWorldSession->HandleMoveWorldportAckOpcode();
-          } else if(botPlayer->IsInWorld())
-          {
-              WorldPacket *packet;
-              while(pBotWorldSession->_recvQueue.next(packet))
-              {
-                  OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
-                  (pBotWorldSession->*opHandle.handler)(*packet);
-                  delete packet;
-              }
-          }
+                pBotWorldSession->HandleMoveWorldportAckOpcode();
+            }
+            else if(botPlayer->IsInWorld())
+            {
+                WorldPacket *packet;
+                while(pBotWorldSession->_recvQueue.next(packet))
+                {
+                    OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
+                    (pBotWorldSession->*opHandle.handler)(*packet);
+                    delete packet;
+                }
+            }
         }
         ///- Cleanup socket pointer if need
         if (m_Socket && m_Socket->IsClosed())

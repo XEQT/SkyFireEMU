@@ -490,12 +490,15 @@ bool ChatHandler::HandleSummonCommand(const char* args)
     std::string target_name;
     if (!extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
+    sLog->outString("Guid [%u] && Target_name [%s]", target_guid, target_name.c_str());
     Player* _player = m_session->GetPlayer();
+    if (!target)
+        sObjectMgr->GetPlayer(target_guid);
+
     if (target != _player && target)
         sLog->outString("[%s]", target->GetName());
     if (!target)
         sLog->outString("Nope this isent right");
-
     if (target == _player || target_guid == _player->GetGUID())
     {
         PSendSysMessage(LANG_CANT_TELEPORT_SELF);
